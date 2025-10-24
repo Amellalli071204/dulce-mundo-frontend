@@ -1,0 +1,51 @@
+/* src/components/ProductCard.css */
+/* ... otros estilos ... */
+
+.product-price {
+  /* ... */
+  /* Cambiamos el color del precio */
+  color: #e84393; /* Un rosa más intenso */
+  margin-bottom: 1rem;
+}
+
+.btn-details {
+  /* ... */
+  /* Cambiamos el color del botón */
+  background-color: #00d2d3; /* Un turquesa brillante */
+  /* ... */
+}
+
+/* Añadir al final de src/components/ProductCard.css */
+
+.product-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem; /* Espacio entre botones */
+}
+
+.btn-details,
+.btn-add-cart {
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  text-align: center;
+  font-size: 0.9rem;
+  width: 100%; /* Hacemos que ambos ocupen espacio */
+}
+
+.btn-details {
+  background-color: #00d2d3; /* Turquesa */
+  color: white;
+}
+
+.btn-add-cart {
+  background-color: #ff7eb9; /* Rosa chicle */
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-add-cart:hover {
+  background-color: #e84393;
+}

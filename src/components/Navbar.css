@@ -1,0 +1,28 @@
+/* src/components/Navbar.css */
+.navbar {
+  /* ... otros estilos ... */
+  /* Cambiamos el color de fondo a un rosa divertido */
+  background-color: #ff7eb9; /* Color chicle */
+}
+
+/* ... otros estilos ... */
+
+.navbar-links a:hover {
+  /* Cambiamos el color hover a un amarillo */
+  color: #f6e58d;
+}
+
+/* Añadir al final de Navbar.css */
+.btn-logout {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+  margin-left: 1.5rem;
+}
+
+.btn-logout:hover {
+  color: #f6e58d;
+}
