@@ -1,67 +1,78 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
-import './FormPage.css';
+// import './LoginPage.css';
+
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const LoginPage = () => {
-  // --- ESTAS LÍNEAS FALTABAN ---
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const navigate = useNavigate();
+  const [mensaje, setMensaje] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setMensaje('');
+    setLoading(true);
+
     try {
-      // Nota: En producción necesitarás cambiar localhost por la URL real de tu backend
-      const response = await axios.post('http://localhost:4000/api/login', {
+      // 👈 ruta EXACTA de tu backend
+      const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
 
-      localStorage.setItem('userToken', 'token_simulado_123');
-      setSuccessMessage('¡Bienvenido! Redirigiendo...');
-      
-      setTimeout(() => {
-        navigate('/catalogo');
-      }, 1500);
-
+      console.log('Login exitoso:', response.data);
+      setMensaje('Has iniciado sesión correctamente 🎉');
     } catch (err) {
-      setError('Email o contraseña incorrectos.');
-      setSuccessMessage('');
+      console.error(
+        'Error al iniciar sesión:',
+        err.response?.status,
+        err.response?.data || err.message
+      );
+
+      if (err.response?.status === 401) {
+        setError('Credenciales incorrectas.');
+      } else {
+        setError('Error al iniciar sesión. Intenta más tarde.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <form onSubmit={handleLogin} className="auth-form">
-        <h2>Iniciar Sesión</h2>
-        <div className="form-group">
-          <label>Email</label>
+    <div className="login-page">
+      <h1>Iniciar sesión</h1>
+      <form onSubmit={handleSubmit} className="login-form">
+        <label>
+          Correo electrónico
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div className="form-group">
-          <label>Contraseña</label>
+        </label>
+
+        <label>
+          Contraseña
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </div>
+        </label>
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar'}
+        </button>
+
         {error && <p className="error-message">{error}</p>}
-        {successMessage && <p className="success-message">{successMessage}</p>}
-        <button type="submit" className="btn-submit">Entrar</button>
-        <p className="form-switch">
-          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
-        </p>
+        {mensaje && <p className="success-message">{mensaje}</p>}
       </form>
     </div>
   );

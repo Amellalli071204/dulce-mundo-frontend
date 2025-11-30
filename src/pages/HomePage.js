@@ -3,19 +3,21 @@ import ProductCard from '../components/ProductCard';
 import axios from 'axios';
 import './HomePage.css';
 
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+
 const HomePage = () => {
-  // --- ESTA LÍNEA FALTABA ---
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/productos'); // Ojo: Para producción esto cambiará, pero para que compile usa esto por ahora
+        // 👈 OJO: /api/productos (igual que en el backend)
+        const response = await axios.get(`${API_URL}/api/productos`);
         setProducts(response.data);
-        setLoading(false);
       } catch (err) {
         console.error('Error al cargar productos:', err);
+      } finally {
         setLoading(false);
       }
     };
@@ -24,7 +26,7 @@ const HomePage = () => {
   }, []);
 
   if (loading) {
-    return <div>Cargando dulces...</div>;
+    return <div>Cargando dulces desde la base de datos...</div>;
   }
 
   return (

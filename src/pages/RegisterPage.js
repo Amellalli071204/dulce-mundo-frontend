@@ -1,93 +1,102 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
-import './FormPage.css';
+// import './RegisterPage.css';
+
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const RegisterPage = () => {
-  // --- AQUÍ PROBABLEMENTE ESTABA EL ERROR "ÑÑ" ---
   const [nombre, setNombre] = useState('');
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  
-  const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setMensaje('');
     setError('');
-    
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      await axios.post('http://localhost:4000/api/register', {
-        nombre,
+      // 👈 aquí también: misma ruta y mismos nombres del backend
+      const response = await axios.post(`${API_URL}/api/register`, {
+        nombre,    // igual que en server.js
         email,
         password,
       });
 
-      setSuccessMessage('¡Cuenta creada! Iniciando sesión automáticamente...');
-
-      await axios.post('http://localhost:4000/api/login', {
-        email,
-        password,
-      });
-
-      localStorage.setItem('userToken', 'token_simulado_123');
-
-      setTimeout(() => {
-        navigate('/catalogo');
-      }, 1500);
-
+      console.log('Registro exitoso:', response.data);
+      setMensaje('Te registraste correctamente 🎉');
+      setNombre('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data.message);
-      } else {
-        setError('Ocurrió un error. Por favor intenta de nuevo.');
-      }
-      setSuccessMessage('');
+      console.error('Error al registrarse:', err.response?.data || err.message);
+      setError('Error al registrarse. Intenta más tarde.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <form onSubmit={handleRegister} className="auth-form">
-        <h2>Crear Cuenta</h2>
-        <div className="form-group">
-          <label>Nombre</label>
+    <div className="register-page">
+      <h1>Crear cuenta</h1>
+      <form onSubmit={handleSubmit} className="register-form">
+        <label>
+          Nombre
           <input
             type="text"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             required
           />
-        </div>
-        <div className="form-group">
-          <label>Email</label>
+        </label>
+
+        <label>
+          Correo electrónico
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div className="form-group">
-          <label>Contraseña</label>
+        </label>
+
+        <label>
+          Contraseña
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </div>
+        </label>
+
+        <label>
+          Confirmar contraseña
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </label>
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creando cuenta...' : 'Registrarme'}
+        </button>
 
         {error && <p className="error-message">{error}</p>}
-        {successMessage && <p className="success-message">{successMessage}</p>}
-
-        <button type="submit" className="btn-submit">Registrarse</button>
-        
-        <p className="form-switch">
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
-        </p>
+        {mensaje && <p className="success-message">{mensaje}</p>}
       </form>
     </div>
   );
