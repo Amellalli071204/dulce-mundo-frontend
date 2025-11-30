@@ -4,69 +4,97 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 3rem 1rem;
+  min-height: 80vh;
+  background-color: #fff0f6; /* Fondo rosa suave */
+  padding: 20px;
 }
 
 .auth-form {
   background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(232, 67, 147, 0.15);
   width: 100%;
   max-width: 400px;
+  text-align: center;
 }
 
 .auth-form h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
   color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  text-align: left;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #555;
+  color: #444;
+  font-weight: 600;
 }
 
 .form-group input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box; /* Importante para que el padding no afecte el ancho */
+  padding: 0.8rem;
+  border: 2px solid #eee;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  border-color: #ff7eb9;
 }
 
 .btn-submit {
   width: 100%;
-  padding: 0.8rem;
-  border: none;
+  padding: 0.9rem;
   background-color: #ff7eb9;
   color: white;
+  border: none;
+  border-radius: 8px;
   font-size: 1.1rem;
   font-weight: bold;
-  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  margin-top: 1rem;
 }
 
 .btn-submit:hover {
   background-color: #e84393;
 }
 
-.error-message {
-  color: red;
-  text-align: center;
-  margin-bottom: 1rem;
+.form-switch {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
 }
-/* Añadir al final de src/pages/FormPage.css */
+
+.form-switch a {
+  color: #e84393;
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+/* Estilos para mensajes de error y éxito */
+.error-message {
+  color: #d63031;
+  background-color: #ffe0e0;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
 
 .success-message {
-  color: green;
-  text-align: center;
+  color: #27ae60;
+  background-color: #e0f9b5;
+  padding: 10px;
+  border-radius: 5px;
   margin-bottom: 1rem;
-  font-weight: bold;
+  font-size: 0.9rem;
 }
