@@ -2,73 +2,72 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
-import './FormPage.css';
+//import './LoginPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [mensaje, setMensaje] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setMensaje('');
+    setLoading(true);
+
     try {
-      const response = await axios.post('${API_URL}/api/login', {
+      // 👉 Ajusta la ruta si en tu backend es diferente
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });
 
-      // Guardamos el token y el role que venga del backend (si está disponible).
-      // Si el backend no devuelve role, determinamos si es admin por email.
-      const token = response?.data?.token || 'un_token_de_ejemplo';
-      let role = response?.data?.role || 'USER';
+      console.log('Login exitoso:', response.data);
+      setMensaje('Has iniciado sesión correctamente 🎉');
 
-      // Detectar admin por email
-      if (email === 'admin@gmail.com') {
-        role = 'ADMIN';
-      }
-
-      localStorage.setItem('userToken', token);
-      localStorage.setItem('userRole', role);
-
-      // Redirigimos al catálogo
-      navigate('/catalogo');
-
+      // TODO: guardar token, redirigir, etc.
     } catch (err) {
-      setError('Email o contraseña incorrectos.');
-      console.error('Error en el login:', err);
+      console.error('Error al iniciar sesión:', err);
+      setError('Error al iniciar sesión. Revisa tus datos o intenta más tarde.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <form onSubmit={handleLogin} className="auth-form">
-        <h2>Bienvenido a DulceMundo 🍬</h2>
-        <p>Por favor, inicia sesión para continuar</p>
-        <div className="form-group">
-          <label>Email</label>
+    <div className="login-page">
+      <h1>Iniciar sesión</h1>
+      <form onSubmit={handleSubmit} className="login-form">
+        <label>
+          Correo electrónico
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div className="form-group">
-          <label>Contraseña</label>
+        </label>
+
+        <label>
+          Contraseña
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </div>
+        </label>
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar'}
+        </button>
+
         {error && <p className="error-message">{error}</p>}
-        <button type="submit" className="btn-submit">Entrar</button>
-        <p className="form-switch">¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link></p>
+        {mensaje && <p className="success-message">{mensaje}</p>}
       </form>
     </div>
   );

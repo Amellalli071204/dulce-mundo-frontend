@@ -1,30 +1,28 @@
 // src/pages/ProductDetailPage.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useCart } from '../context/CartContext'; // <-- 1. IMPORTAMOS EL HOOK DEL CARRITO
 import './ProductDetailPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const ProductDetailPage = () => {
+  const { id } = useParams(); // id que viene de la URL
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { id } = useParams();
-  const { addProductToCart } = useCart(); // <-- 2. OBTENEMOS LA FUNCIÓN
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        // Simulación temporal
-        const response = await axios.get('${API_URL}/api/products');
-        const allProducts = response.data;
-        const foundProduct = allProducts.find(p => p.id.toString() === id);
-        setProduct(foundProduct);
+        // 👉 Ajusta la ruta si tu backend usa otra
+        const response = await axios.get(`${API_URL}/api/products/${id}`);
+        setProduct(response.data);
         setLoading(false);
       } catch (err) {
-        console.error("Error cargando el producto:", err);
+        console.error('Error al cargar el producto:', err);
+        setError('No se pudo cargar el producto.');
         setLoading(false);
       }
     };
@@ -33,31 +31,29 @@ const ProductDetailPage = () => {
   }, [id]);
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return <div>Cargando información del dulce...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
   }
 
   if (!product) {
-    return <div>Producto no encontrado.</div>;
+    return <div>No se encontró el producto.</div>;
   }
-
-  const price = parseFloat(product.precio) || 0;
 
   return (
     <div className="product-detail-page">
-      <img src={product.imagen_url} alt={product.nombre} className="product-detail-image" />
-      <div className="product-detail-info">
-        <h1>{product.nombre}</h1>
-        <p className="product-detail-price">${price.toFixed(2)}</p>
-        <p className="product-detail-description">{product.descripcion}</p>
-        
-        {/* 3. CONECTAMOS EL BOTÓN CON LA FUNCIÓN */}
-        <button 
-          className="btn-add-to-cart"
-          onClick={() => addProductToCart(product)}
-        >
-          ¡A la bolsa!
-        </button>
-      </div>
+      <h1>{product.name}</h1>
+      {product.image && (
+        <img
+          src={product.image}
+          alt={product.name}
+          className="product-detail-image"
+        />
+      )}
+      <p><strong>Precio:</strong> ${product.price}</p>
+      <p><strong>Descripción:</strong> {product.description}</p>
     </div>
   );
 };
