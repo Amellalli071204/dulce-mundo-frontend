@@ -5,6 +5,12 @@ import axios from 'axios';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
+const response = await axios.post(`${API_URL}/api/register`, {
+  nombre,   // 👈 igual que en el backend
+  email,
+  password,
+});
+
 const RegisterPage = () => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');

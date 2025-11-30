@@ -5,6 +5,11 @@ import axios from 'axios';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
+const response = await axios.post(`${API_URL}/api/login`, {
+  email,
+  password,
+});
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

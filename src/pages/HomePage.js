@@ -6,6 +6,11 @@ import './HomePage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
+const fetchProducts = async () => {
+  const response = await axios.get(`${API_URL}/api/productos`);
+  setProducts(response.data);
+};
+
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
