@@ -1,83 +1,67 @@
-// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import axios from 'axios';
-import './FormPage.css'; // si lo quitaste para el build
-
-const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
-
-const response = await axios.post(`${API_URL}/api/login`, {
-  email,
-  password,
-});
+import { useNavigate, Link } from 'react-router-dom';
+import './FormPage.css';
 
 const LoginPage = () => {
+  // --- ESTAS LÍNEAS FALTABAN ---
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  
   const [error, setError] = useState('');
-  const [mensaje, setMensaje] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setMensaje('');
-    setLoading(true);
-
     try {
-      // 👈 ruta correcta según tu backend
-      const response = await axios.post(`${API_URL}/api/login`, {
+      // Nota: En producción necesitarás cambiar localhost por la URL real de tu backend
+      const response = await axios.post('http://localhost:4000/api/login', {
         email,
         password,
       });
 
-      console.log('Login exitoso:', response.data);
-      setMensaje('Has iniciado sesión correctamente 🎉');
+      localStorage.setItem('userToken', 'token_simulado_123');
+      setSuccessMessage('¡Bienvenido! Redirigiendo...');
+      
+      setTimeout(() => {
+        navigate('/catalogo');
+      }, 1500);
+
     } catch (err) {
-      console.error(
-        'Error al iniciar sesión:',
-        err.response?.status,
-        err.response?.data || err.message
-      );
-      if (err.response?.status === 401) {
-        setError('Credenciales incorrectas.');
-      } else {
-        setError('Error al iniciar sesión. Intenta más tarde.');
-      }
-    } finally {
-      setLoading(false);
+      setError('Email o contraseña incorrectos.');
+      setSuccessMessage('');
     }
   };
 
   return (
-    <div className="login-page">
-      <h1>Iniciar sesión</h1>
-      <form onSubmit={handleSubmit} className="login-form">
-        <label>
-          Correo electrónico
+    <div className="form-container">
+      <form onSubmit={handleLogin} className="auth-form">
+        <h2>Iniciar Sesión</h2>
+        <div className="form-group">
+          <label>Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </label>
-
-        <label>
-          Contraseña
+        </div>
+        <div className="form-group">
+          <label>Contraseña</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </label>
-
-        <button type="submit" disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-
+        </div>
         {error && <p className="error-message">{error}</p>}
-        {mensaje && <p className="success-message">{mensaje}</p>}
+        {successMessage && <p className="success-message">{successMessage}</p>}
+        <button type="submit" className="btn-submit">Entrar</button>
+        <p className="form-switch">
+          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+        </p>
       </form>
     </div>
   );
