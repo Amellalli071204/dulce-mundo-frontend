@@ -1,7 +1,7 @@
 // src/pages/RegisterPage.js
 import React, { useState } from 'react';
 import axios from 'axios';
-// import './RegisterPage.css';
+import './FormPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';ÑÑ
 
