@@ -2,22 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
-import axios from 'axios'; // <-- Importamos axios
+import axios from 'axios';
 import './HomePage.css';
 
+// Puedes dejarlo fijo:
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+// O si luego usas variables de entorno:
+// const API_URL = process.env.REACT_APP_API_URL;
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Esta función se conectará a nuestro backend
     const fetchProducts = async () => {
       try {
-        // Le pedimos los productos a nuestro servidor backend con GET
-        const response = await axios.get('${API_URL}/api/products');
-        setProducts(response.data); // Guardamos los productos de la BD en el estado
+        // 👇 AQUÍ ESTABA EL PROBLEMA: usa backticks, no comillas simples
+        const response = await axios.get(`${API_URL}/api/products`);
+        setProducts(response.data);
         setLoading(false);
       } catch (err) {
         console.error('Error al cargar productos:', err);
@@ -25,8 +27,8 @@ const HomePage = () => {
       }
     };
 
-    fetchProducts(); // Ejecutamos la función
-  }, []); // El array vacío asegura que se ejecute solo una vez
+    fetchProducts();
+  }, []);
 
   if (loading) {
     return <div>Cargando dulces desde la base de datos...</div>;
@@ -36,7 +38,6 @@ const HomePage = () => {
     <div className="homepage">
       <h1>Nuestro Catálogo de Dulces</h1>
       <div className="product-grid">
-        {/* Hacemos el map con los productos que vinieron de la BD */}
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
