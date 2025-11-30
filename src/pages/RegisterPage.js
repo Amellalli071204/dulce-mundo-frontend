@@ -2,28 +2,68 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import './FormPage.css'; // Reutilizamos los estilos
+import { useNavigate, Link } from 'react-router-dom'; // <-- Importamos useNavigate y Link
+import './FormPage.css';
+
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const RegisterPage = () => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  
+  const navigate = useNavigate(); // <-- Inicializamos el hook de navegación
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError('');
+    
     try {
-      const response = await axios.post('http://localhost:4000/api/register', {
+      // 1. Intentamos REGISTRAR al usuario
+      await axios.post('${API_URL}/api/register', {
         nombre,
         email,
         password,
       });
-      console.log('Registro exitoso:', response.data);
-      // Aquí podrías redirigir al login
-      setError('');
+
+      // Si llegamos aquí, el registro fue exitoso.
+      setSuccessMessage('¡Cuenta creada! Iniciando sesión automáticamente...');
+
+
+      // 2. Ahora hacemos el LOGIN automático (usando los mismos datos)
+      const loginResponse = await axios.post('${API_URL}/api/login', {
+        email,
+        password,
+      });
+
+      // 3. Guardamos el token y el role que venga del backend (si está disponible)
+      const token = loginResponse?.data?.token || 'token_simulado_123';
+      let role = loginResponse?.data?.role || 'USER';
+
+      // Detectar admin por email
+      if (email === 'admin@gmail.com') {
+        role = 'ADMIN';
+      }
+
+      localStorage.setItem('userToken', token);
+      localStorage.setItem('userRole', role);
+
+      // 4. Redirigimos al catálogo después de 1.5 segundos
+      setTimeout(() => {
+        navigate('/catalogo');
+      }, 1500);
+
     } catch (err) {
-      setError('No se pudo completar el registro. Inténtalo de nuevo.');
-      console.error('Error en el registro:', err);
+      // Si falla el registro o el login automático
+      console.error('Error:', err);
+      if (err.response && err.response.data) {
+        setError(err.response.data.message); // Muestra el mensaje del backend (ej. "Email ya existe")
+      } else {
+        setError('Ocurrió un error. Por favor intenta de nuevo.');
+      }
+      setSuccessMessage('');
     }
   };
 
@@ -58,8 +98,16 @@ const RegisterPage = () => {
             required
           />
         </div>
+
+        {/* Mensajes de error o éxito */}
         {error && <p className="error-message">{error}</p>}
+        {successMessage && <p className="success-message">{successMessage}</p>}
+
         <button type="submit" className="btn-submit">Registrarse</button>
+        
+        <p className="form-switch">
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
+        </p>
       </form>
     </div>
   );

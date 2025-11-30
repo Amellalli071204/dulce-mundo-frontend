@@ -1,13 +1,29 @@
 // src/components/ProductCard.js
 
-import React from 'react';
+import React, { useState } from 'react'; // <-- IMPORTAMOS useState
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext'; // <-- 1. IMPORTAMOS EL HOOK
+import { useCart } from '../context/CartContext';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
-  const { addProductToCart } = useCart(); // <-- 2. OBTENEMOS LA FUNCIÓN DEL CONTEXTO
+  const { addProductToCart } = useCart();
   const price = parseFloat(product.precio) || 0;
+
+  // Estado para controlar la animación del botón
+  const [isAdded, setIsAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    // 1. Añadimos al carrito
+    addProductToCart(product);
+    
+    // 2. Activamos el estado visual
+    setIsAdded(true);
+
+    // 3. Después de 1.5 segundos, lo regresamos a la normalidad
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 1500);
+  };
 
   return (
     <div className="product-card">
@@ -16,17 +32,18 @@ const ProductCard = ({ product }) => {
         <h3 className="product-name">{product.nombre}</h3>
         <p className="product-price">${price.toFixed(2)}</p>
         
-        {/* 3. Dividimos los botones */}
         <div className="product-buttons">
           <Link to={`/product/${product.id}`} className="btn-details">
             Ver Detalles
           </Link>
-          {/* 4. AÑADIMOS EL BOTÓN PARA AÑADIR AL CARRITO */}
+          
+          {/* BOTÓN CON FEEDBACK VISUAL */}
           <button 
-            onClick={() => addProductToCart(product)} 
-            className="btn-add-cart"
+            onClick={handleAddToCart} 
+            className={`btn-add-cart ${isAdded ? 'btn-added' : ''}`}
+            disabled={isAdded} // Evita doble clic accidental
           >
-            Añadir
+            {isAdded ? '¡Agregado!' : 'Añadir'}
           </button>
         </div>
       </div>

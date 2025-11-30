@@ -1,44 +1,70 @@
 // src/pages/CartPage.js
 
-import React, { useState } from 'react'; // <-- VOLVEMOS A IMPORTAR useState
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import axios from 'axios'; // <-- VOLVEMOS A IMPORTAR axios
+import axios from 'axios';
 import './CartPage.css';
 
-const CartPage = () => {
-  // Obtenemos todas las funciones del contexto
-  const { cartItems, removeProductFromCart, addProductToCart, decreaseProductQuantity } = useCart();
-  
-  // VOLVEMOS A AÑADIR EL ESTADO DE CARGA PARA EL PAGO
-  const [loading, setLoading] = useState(false);
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
+const CartPage = () => {
+  const { cartItems, removeProductFromCart, addProductToCart, decreaseProductQuantity } = useCart();
+  const [loading, setLoading] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  
   // Calculamos el total
   const total = cartItems.reduce((acc, item) => {
     const price = parseFloat(item.precio) || 0;
     return acc + price * item.quantity;
   }, 0);
 
-  // --- ¡AQUÍ ESTÁ LA LÓGICA DE PAGO QUE FALTABA! ---
-  const handleCheckout = async () => {
+
+  // --- FUNCIÓN PARA EL PAGO DIGITAL (MERCADO PAGO) ---
+  const handleDigitalCheckout = async () => {
     setLoading(true);
     try {
-      // 1. Enviamos el carrito al backend para crear la preferencia
-      const response = await axios.post('http://localhost:4000/api/create-payment-preference', {
+      const response = await axios.post('${API_URL}/api/create-payment-preference', {
         cartItems: cartItems
       });
-
-      // 2. Obtenemos la URL de pago (init_point) de la respuesta
       const { init_point } = response.data;
-
-      // 3. Redirigimos al usuario a la página de Mercado Pago
       window.location.href = init_point;
-
     } catch (error) {
-      console.error('Error al procesar el pago:', error);
-      alert('Error al iniciar el proceso de pago. Intenta de nuevo.');
+      console.error('Error al procesar el pago digital:', error);
+      alert('Error al iniciar el proceso de pago digital. Intenta de nuevo.');
       setLoading(false);
     }
   };
+
+  // --- FUNCIÓN PARA EL PAGO EN EFECTIVO (CONTRA ENTREGA) ---
+  const handleCashCheckout = async () => {
+    setLoading(true);
+    try {
+      await axios.post('${API_URL/api/create-cash-order', {
+        cartItems: cartItems,
+        total: total
+      });
+      
+      alert('¡Orden creada! El repartidor llevará tu pedido en efectivo.');
+      // clearCart(); // La función para limpiar el carrito iría aquí
+      
+    } catch (error) {
+      console.error('Error al crear la orden en efectivo:', error);
+      alert('Error al crear la orden en efectivo. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // --- FUNCIÓN QUE DIRIGE A LA ELECCIÓN ---
+  const handleInitialCheckout = () => {
+    if (cartItems.length === 0) {
+      alert('Tu carrito está vacío.');
+      return;
+    }
+    setShowOptions(true); // Muestra los botones de elección
+  };
+
 
   return (
     <div className="cart-container">
@@ -47,15 +73,16 @@ const CartPage = () => {
         <p>Tu bolsa está vacía. ¡Añade unos dulces!</p>
       ) : (
         <>
+          {/* --- ¡AQUÍ ESTÁ LA LISTA DE PRODUCTOS QUE FALTABA! --- */}
           <div className="cart-items-list">
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item">
                 <img src={item.imagen_url} alt={item.nombre} className="cart-item-image" />
+                
                 <div className="cart-item-details">
                   <h3>{item.nombre}</h3>
                   <p>Precio: ${(parseFloat(item.precio) || 0).toFixed(2)}</p>
                   
-                  {/* Los controles de cantidad que ya funcionan */}
                   <div className="quantity-controls">
                     <button 
                       className="btn-quantity"
@@ -75,7 +102,6 @@ const CartPage = () => {
                 <div className="cart-item-price">
                   <p>Subtotal: ${(parseFloat(item.precio) * item.quantity).toFixed(2)}</p>
                 </div>
-                
                 <div className="cart-item-actions">
                   <button 
                     className="btn-remove-item"
@@ -87,18 +113,38 @@ const CartPage = () => {
               </div>
             ))}
           </div>
+          {/* --- FIN DE LA LISTA DE PRODUCTOS --- */}
+
           <div className="cart-summary">
             <h2>Resumen de la compra</h2>
             <h3>Total: ${total.toFixed(2)}</h3>
 
-            {/* --- CONECTAMOS EL BOTÓN DE PAGO DE NUEVO --- */}
-            <button 
-              className="btn-checkout" 
-              onClick={handleCheckout} 
-              disabled={loading}
-            >
-              {loading ? 'Procesando...' : 'Proceder al Pago'}
-            </button>
+            {!showOptions ? (
+              <button 
+                className="btn-checkout" 
+                onClick={handleInitialCheckout}
+              >
+                Proceder al Pago
+              </button>
+            ) : (
+              <div className="payment-options">
+                <p>¿Cómo deseas pagar?</p>
+                <button 
+                  className="btn-option digital-btn" 
+                  onClick={handleDigitalCheckout}
+                  disabled={loading}
+                >
+                  Tarjeta, Transferencia, OXXO
+                </button>
+                <button 
+                  className="btn-option cash-btn" 
+                  onClick={handleCashCheckout}
+                  disabled={loading}
+                >
+                  Efectivo (Contra Entrega)
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}

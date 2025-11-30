@@ -1,0 +1,115 @@
+/* src/pages/AdminPage.css */
+
+.admin-container {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.admin-container h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    text-align: center;
+    color: #ff7eb9;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f4f4f4;
+}
+
+/* Tarjeta de Orden */
+.order-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid;
+    cursor: pointer;
+}
+
+/* Header de la Orden (Fila visible) */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.order-id {
+    font-weight: bold;
+    color: #333;
+}
+
+.status-badge-current {
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: white;
+}
+
+/* Colores de estado para la barra lateral y el badge */
+.status-contra-entrega { border-left-color: #ff7eb9; } /* Rosa */
+.status-pagada { border-left-color: #2ecc71; } /* Verde */
+.status-enviada { border-left-color: #3498db; } /* Azul */
+.status-cancelada { border-left-color: #e74c3c; } /* Rojo */
+
+/* Estilos de los detalles expandidos */
+.order-details-expanded {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #eee;
+}
+
+.item-list {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.item-list li {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+.total-item {
+    font-weight: bold;
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 5px;
+    list-style: none; /* Quita el punto de la lista */
+    padding-left: 0;
+}
+
+/* Botones de acción */
+.admin-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.btn-action {
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+}
+
+.btn-confirm { background-color: #ff7eb9; color: white; }
+.btn-confirm:hover { background-color: #e84393; }
+
+.btn-ship { background-color: #3498db; color: white; }
+.btn-ship:hover { background-color: #2980b9; }
+
+.btn-cancel { background-color: #e74c3c; color: white; }
+.btn-cancel:hover { background-color: #c0392b; }

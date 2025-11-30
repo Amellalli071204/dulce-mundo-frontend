@@ -5,6 +5,8 @@ import ProductCard from '../components/ProductCard';
 import axios from 'axios'; // <-- Importamos axios
 import './HomePage.css';
 
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ const HomePage = () => {
     const fetchProducts = async () => {
       try {
         // Le pedimos los productos a nuestro servidor backend con GET
-        const response = await axios.get('http://localhost:4000/api/productos');
+        const response = await axios.get('${API_URL}/api/products');
         setProducts(response.data); // Guardamos los productos de la BD en el estado
         setLoading(false);
       } catch (err) {

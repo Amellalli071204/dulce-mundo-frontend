@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import './FormPage.css';
 
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,14 +16,23 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:4000/api/login', {
+      const response = await axios.post('${API_URL}/api/login', {
         email,
         password,
       });
 
-      // ¡IMPORTANTE! Guardamos el token en el localStorage
-      // (Más adelante haremos que el backend nos envíe un token real)
-      localStorage.setItem('userToken', 'un_token_de_ejemplo'); 
+      // Guardamos el token y el role que venga del backend (si está disponible).
+      // Si el backend no devuelve role, determinamos si es admin por email.
+      const token = response?.data?.token || 'un_token_de_ejemplo';
+      let role = response?.data?.role || 'USER';
+
+      // Detectar admin por email
+      if (email === 'admin@gmail.com') {
+        role = 'ADMIN';
+      }
+
+      localStorage.setItem('userToken', token);
+      localStorage.setItem('userRole', role);
 
       // Redirigimos al catálogo
       navigate('/catalogo');

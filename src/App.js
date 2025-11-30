@@ -7,7 +7,8 @@ import HomePage from './pages/HomePage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import CartPage from './pages/CartPage'; // <-- 1. IMPORTAMOS LA PÁGINA DEL CARRITO
+import CartPage from './pages/CartPage';
+import AdminPage from './pages/AdminPage'; // <-- IMPORTAR PÁGINA DE ADMINISTRACIÓN
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -18,11 +19,11 @@ function App() {
         <Navbar />
         <main>
           <Routes>
-            {/* Rutas Públicas */}
+            {/* Rutas Públicas (Acceso libre) */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             
-            {/* Rutas Protegidas */}
+            {/* Rutas Protegidas (Requieren Login - El guardia de seguridad las cuida) */}
             <Route 
               path="/catalogo" 
               element={<ProtectedRoute><HomePage /></ProtectedRoute>} 
@@ -33,10 +34,14 @@ function App() {
             />
             <Route 
               path="/cart" 
-              element={<ProtectedRoute><CartPage /></ProtectedRoute>} // <-- 2. AÑADIMOS LA RUTA
+              element={<ProtectedRoute><CartPage /></ProtectedRoute>} 
+            />
+            <Route 
+              path="/admin" 
+              element={<ProtectedRoute><AdminPage /></ProtectedRoute>} // <-- RUTA DEL PANEL DE ADMINISTRACIÓN
             />
 
-            {/* Ruta por defecto */}
+            {/* Ruta por defecto: Redirige a /catalogo si se intenta acceder a / */}
             <Route path="*" element={<Navigate to="/catalogo" />} />
           </Routes>
         </main>

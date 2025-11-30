@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useCart } from '../context/CartContext'; // <-- 1. IMPORTAMOS EL HOOK DEL CARRITO
 import './ProductDetailPage.css';
 
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+
 const ProductDetailPage = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
       try {
         // Simulación temporal
-        const response = await axios.get('http://localhost:4000/api/productos');
+        const response = await axios.get('${API_URL}/api/products');
         const allProducts = response.data;
         const foundProduct = allProducts.find(p => p.id.toString() === id);
         setProduct(foundProduct);

@@ -1,28 +1,81 @@
 /* src/components/Navbar.css */
+
 .navbar {
-  /* ... otros estilos ... */
-  /* Cambiamos el color de fondo a un rosa divertido */
-  background-color: #ff7eb9; /* Color chicle */
-}
-
-/* ... otros estilos ... */
-
-.navbar-links a:hover {
-  /* Cambiamos el color hover a un amarillo */
-  color: #f6e58d;
-}
-
-/* Añadir al final de Navbar.css */
-.btn-logout {
-  background: none;
-  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ff7eb9; /* Fondo Rosa */
+  padding: 1rem 2rem;
   color: white;
-  cursor: pointer;
-  font-size: 1rem;
-  font-family: inherit;
-  margin-left: 1.5rem;
+  width: 100%;
 }
 
-.btn-logout:hover {
-  color: #f6e58d;
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+/* Contenedor de todos los links */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  flex-grow: 1; /* Ocupa el espacio restante para empujar */
+  gap: 15px; /* Espacio entre los links */
+}
+
+/* 2. Estilo de enlaces normales (Catálogo) */
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: color 0.3s;
+}
+
+/* 4. Estilo para el botón de ADMIN (DEBE SER VISIBLE) */
+.nav-admin-link {
+    background-color: #f7b731; /* Fondo Amarillo/Naranja */
+    color: #333 !important; /* Texto Oscuro */
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    font-weight: bold !important;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: flex; 
+    align-items: center;
+    transition: background-color 0.2s;
+    margin-left: auto; /* <--- CLAVE: Empuja el grupo a la derecha */
+}
+
+/* 5. Estilo de la Bolsa */
+.nav-cart-link {
+  background-color: white; 
+  color: #ff7eb9 !important; 
+  padding: 0.6rem 1.2rem; 
+  border-radius: 50px;
+  font-weight: bold !important;
+  display: flex;
+  align-items: center;
+}
+
+/* 6. Estilo del Logout */
+.btn-logout {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-family: inherit;
+    padding: 0;
+    margin-left: 10px; /* Separación de la bolsa */
+}
+
+/* Hover styles */
+.nav-admin-link:hover {
+    background-color: #f5a300;
+    transform: scale(1.02);
+}
+.nav-cart-link:hover {
+  background-color: #ffeaa7; 
 }

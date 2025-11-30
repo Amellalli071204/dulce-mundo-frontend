@@ -49,3 +49,25 @@
 .btn-add-cart:hover {
   background-color: #e84393;
 }
+
+/* src/components/ProductCard.css */
+
+.product-image {
+  width: 100%;        /* Que ocupe todo el ancho de la tarjeta */
+  height: 200px;      /* <--- ¡ESTO ES CLAVE! Altura fija para todas */
+  object-fit: cover;  /* <--- LA MAGIA: Recorta la imagen para que quepa sin deformarse */
+  object-position: center; /* Centra la imagen */
+  border-bottom: 1px solid #eee; /* Un borde sutil abajo */
+}
+/* src/components/ProductCard.css */
+
+/* ... tus estilos anteriores ... */
+
+/* Estilo cuando el producto se agregó */
+.btn-added {
+  background-color: #2ecc71 !important; /* Verde éxito */
+  color: white;
+  cursor: default; /* El cursor no cambia */
+  transform: scale(1.05); /* Un pequeño efecto de "pop" */
+  transition: all 0.3s ease;
+}
