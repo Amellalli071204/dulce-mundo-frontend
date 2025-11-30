@@ -3,13 +3,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 // import './RegisterPage.css';
 
-const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
-
-const response = await axios.post(`${API_URL}/api/register`, {
-  nombre,   // 👈 igual que en el backend
-  email,
-  password,
-});
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';ÑÑ
 
 const RegisterPage = () => {
   const [nombre, setNombre] = useState('');
