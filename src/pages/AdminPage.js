@@ -4,20 +4,21 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminPage.css';
 
-const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+// URL DE LA API EN LA NUBE (PEGA AQUÍ LA URL REAL DE RAILWAY)
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app'; 
 
 const AdminPage = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showDetailsId, setShowDetailsId] = useState(null); // Estado para saber qué detalle mostrar
+    const [showDetailsId, setShowDetailsId] = useState(null); 
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('${API_URL}/api/admin/orders');
+            const response = await axios.get(`${API_URL}/api/admin/orders`); // <--- ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
             setOrders(response.data);
         } catch (error) {
-            console.error('Error al cargar órdenes:', error);
-            alert('Error al cargar órdenes. Verifica el servidor backend.');
+           console.error('Error al cargar órdenes:', error);
+           alert('Error al cargar órdenes. Verifica el servidor backend.');
         } finally {
             setLoading(false);
         }
@@ -25,7 +26,8 @@ const AdminPage = () => {
 
     const fetchOrderDetails = async (orderId) => {
         try {
-            const response = await axios.get(`${API_URL}/api/admin/order-items/${orderId}`);
+            // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
+            const response = await axios.get(`${API_URL}/api/admin/order-items/${orderId}`); 
             // Mapeamos los ítems de vuelta al objeto de la orden correspondiente
             setOrders(prevOrders => prevOrders.map(order => 
                 order.id === orderId ? { ...order, items: response.data } : order
@@ -36,35 +38,21 @@ const AdminPage = () => {
         }
     };
 
-    const handleToggleDetails = (orderId) => {
-        // Cierra si ya está abierto
-        if (showDetailsId === orderId) {
-            setShowDetailsId(null);
-        } else {
-            // Abre y carga los detalles si aún no están cargados
-            if (!orders.find(o => o.id === orderId)?.items) {
-                fetchOrderDetails(orderId);
-            }
-            setShowDetailsId(orderId);
-        }
-    };
-
     const handleUpdateStatus = async (orderId, currentStatus, newStatus) => {
         if (!window.confirm(`¿Seguro que deseas cambiar el pedido #${orderId} de ${currentStatus} a ${newStatus}?`)) return;
 
         try {
-            await axios.post('${API_URL}/api/orders/update-status', {
-                orderId,
-                newStatus
+            // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
+            await axios.post(`${API_URL}/api/orders/update-status`, { 
+                orderId, newStatus
             });
-            // Recarga la lista después de la actualización
             fetchOrders(); 
         } catch (error) {
             console.error('Error al actualizar:', error);
             alert('Error al actualizar el estado del pedido.');
         }
     };
-
+    
     useEffect(() => {
         fetchOrders();
     }, []);
@@ -90,7 +78,6 @@ const AdminPage = () => {
                                 <span className="toggle-icon">{showDetailsId === order.id ? '▲' : '▼'}</span>
                             </div>
 
-                            {/* Detalle de la Orden (Expandible) */}
                             {showDetailsId === order.id && (
                                 <div className="order-details-expanded">
                                     <h3>Ítems de la Orden:</h3>
@@ -107,7 +94,6 @@ const AdminPage = () => {
                                         <p>Cargando ítems...</p>
                                     )}
 
-                                    {/* Botones de Acción */}
                                     <div className="admin-actions">
                                         {order.estado === 'CONTRA_ENTREGA' && (
                                             <button 

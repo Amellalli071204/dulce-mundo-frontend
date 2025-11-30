@@ -5,25 +5,25 @@ import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import './CartPage.css';
 
-const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+// URL DE LA API EN LA NUBE (PEGA AQUÍ LA URL REAL DE RAILWAY)
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app'; 
 
 const CartPage = () => {
   const { cartItems, removeProductFromCart, addProductToCart, decreaseProductQuantity } = useCart();
   const [loading, setLoading] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
+  const [showOptions, setShowOptions] = useState(false); 
   
-  // Calculamos el total
   const total = cartItems.reduce((acc, item) => {
     const price = parseFloat(item.precio) || 0;
     return acc + price * item.quantity;
   }, 0);
 
-
   // --- FUNCIÓN PARA EL PAGO DIGITAL (MERCADO PAGO) ---
   const handleDigitalCheckout = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('${API_URL}/api/create-payment-preference', {
+      // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
+      const response = await axios.post(`${API_URL}/api/create-payment-preference`, { 
         cartItems: cartItems
       });
       const { init_point } = response.data;
@@ -39,13 +39,13 @@ const CartPage = () => {
   const handleCashCheckout = async () => {
     setLoading(true);
     try {
-      await axios.post('${API_URL/api/create-cash-order', {
+      // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
+      await axios.post(`${API_URL}/api/create-cash-order`, { 
         cartItems: cartItems,
         total: total
       });
       
       alert('¡Orden creada! El repartidor llevará tu pedido en efectivo.');
-      // clearCart(); // La función para limpiar el carrito iría aquí
       
     } catch (error) {
       console.error('Error al crear la orden en efectivo:', error);
@@ -54,17 +54,14 @@ const CartPage = () => {
       setLoading(false);
     }
   };
-
-
-  // --- FUNCIÓN QUE DIRIGE A LA ELECCIÓN ---
+  
   const handleInitialCheckout = () => {
     if (cartItems.length === 0) {
       alert('Tu carrito está vacío.');
       return;
     }
-    setShowOptions(true); // Muestra los botones de elección
+    setShowOptions(true);
   };
-
 
   return (
     <div className="cart-container">
@@ -73,7 +70,6 @@ const CartPage = () => {
         <p>Tu bolsa está vacía. ¡Añade unos dulces!</p>
       ) : (
         <>
-          {/* --- ¡AQUÍ ESTÁ LA LISTA DE PRODUCTOS QUE FALTABA! --- */}
           <div className="cart-items-list">
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item">
@@ -99,9 +95,11 @@ const CartPage = () => {
                     </button>
                   </div>
                 </div>
+                
                 <div className="cart-item-price">
                   <p>Subtotal: ${(parseFloat(item.precio) * item.quantity).toFixed(2)}</p>
                 </div>
+                
                 <div className="cart-item-actions">
                   <button 
                     className="btn-remove-item"
@@ -113,8 +111,6 @@ const CartPage = () => {
               </div>
             ))}
           </div>
-          {/* --- FIN DE LA LISTA DE PRODUCTOS --- */}
-
           <div className="cart-summary">
             <h2>Resumen de la compra</h2>
             <h3>Total: ${total.toFixed(2)}</h3>
