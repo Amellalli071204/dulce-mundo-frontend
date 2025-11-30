@@ -1,7 +1,7 @@
 // src/pages/LoginPage.js
 import React, { useState } from 'react';
 import axios from 'axios';
-// import './LoginPage.css'; // si lo quitaste para el build
+import './FormPage.css'; // si lo quitaste para el build
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
