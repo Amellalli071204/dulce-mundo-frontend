@@ -1,5 +1,8 @@
+// src/pages/LoginPage.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';   // 👈 IMPORTANTE
 // import './LoginPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
@@ -11,6 +14,8 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
 
+  const navigate = useNavigate();                // 👈 PARA REDIRIGIR
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -18,21 +23,24 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // 👈 ruta EXACTA de tu backend
       const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
 
       console.log('Login exitoso:', response.data);
-      setMensaje('Has iniciado sesión correctamente 🎉');
+      setMensaje('Ha iniciado sesión correctamente 🎉');
+
+      // 👇 REDIRIGE AL CATÁLOGO DESPUÉS DE 1 SEGUNDO
+      setTimeout(() => {
+        navigate('/catalogo');   // si tu ruta es otra, cámbiala aquí
+      }, 1000);
     } catch (err) {
       console.error(
         'Error al iniciar sesión:',
         err.response?.status,
         err.response?.data || err.message
       );
-
       if (err.response?.status === 401) {
         setError('Credenciales incorrectas.');
       } else {
