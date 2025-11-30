@@ -1,3 +1,5 @@
+// src/pages/RegisterPage.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
 // import './RegisterPage.css';
@@ -14,7 +16,8 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault();               // 👈 MUY IMPORTANTE
+    console.log('Submit registro');   // para ver que sí entra
     setMensaje('');
     setError('');
 
@@ -26,9 +29,9 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      // 👈 aquí también: misma ruta y mismos nombres del backend
+      console.log('Llamando a:', `${API_URL}/api/register`);
       const response = await axios.post(`${API_URL}/api/register`, {
-        nombre,    // igual que en server.js
+        nombre,      // 👈 mismo nombre que en el backend
         email,
         password,
       });
@@ -40,7 +43,11 @@ const RegisterPage = () => {
       setPassword('');
       setConfirmPassword('');
     } catch (err) {
-      console.error('Error al registrarse:', err.response?.data || err.message);
+      console.error(
+        'Error al registrarse:',
+        err.response?.status,
+        err.response?.data || err.message
+      );
       setError('Error al registrarse. Intenta más tarde.');
     } finally {
       setLoading(false);
@@ -50,6 +57,8 @@ const RegisterPage = () => {
   return (
     <div className="register-page">
       <h1>Crear cuenta</h1>
+
+      {/* 👇 SIN action, SIN method, SOLO onSubmit */}
       <form onSubmit={handleSubmit} className="register-form">
         <label>
           Nombre
@@ -91,6 +100,7 @@ const RegisterPage = () => {
           />
         </label>
 
+        {/* 👇 type="submit" para que dispare onSubmit del form */}
         <button type="submit" disabled={loading}>
           {loading ? 'Creando cuenta...' : 'Registrarme'}
         </button>
