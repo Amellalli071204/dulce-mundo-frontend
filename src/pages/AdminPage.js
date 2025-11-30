@@ -1,6 +1,6 @@
 // src/pages/AdminPage.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // <--- Aseguramos que useState esté importado
 import axios from 'axios';
 import './AdminPage.css';
 
@@ -10,11 +10,26 @@ const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 const AdminPage = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showDetailsId, setShowDetailsId] = useState(null); 
+    const [showDetailsId, setShowDetailsId] = useState(null); // Estado para abrir/cerrar el detalle
 
+    // --- FUNCIÓN FALTANTE ---
+    const handleToggleDetails = (orderId) => {
+        // Lógica para abrir/cerrar el detalle
+        if (showDetailsId === orderId) {
+            setShowDetailsId(null);
+        } else {
+            // Carga los detalles si aún no están cargados
+            if (!orders.find(o => o.id === orderId)?.items) {
+                fetchOrderDetails(orderId);
+            }
+            setShowDetailsId(orderId);
+        }
+    };
+    // ------------------------
+    
     const fetchOrders = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/admin/orders`); // <--- ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
+            const response = await axios.get(`${API_URL}/api/admin/orders`); 
             setOrders(response.data);
         } catch (error) {
            console.error('Error al cargar órdenes:', error);
@@ -26,9 +41,7 @@ const AdminPage = () => {
 
     const fetchOrderDetails = async (orderId) => {
         try {
-            // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
             const response = await axios.get(`${API_URL}/api/admin/order-items/${orderId}`); 
-            // Mapeamos los ítems de vuelta al objeto de la orden correspondiente
             setOrders(prevOrders => prevOrders.map(order => 
                 order.id === orderId ? { ...order, items: response.data } : order
             ));
@@ -42,7 +55,6 @@ const AdminPage = () => {
         if (!window.confirm(`¿Seguro que deseas cambiar el pedido #${orderId} de ${currentStatus} a ${newStatus}?`)) return;
 
         try {
-            // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
             await axios.post(`${API_URL}/api/orders/update-status`, { 
                 orderId, newStatus
             });
