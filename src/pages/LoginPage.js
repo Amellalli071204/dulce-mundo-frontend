@@ -33,7 +33,7 @@ const LoginPage = () => {
 
       // 👇 REDIRIGE AL CATÁLOGO DESPUÉS DE 1 SEGUNDO
       setTimeout(() => {
-        navigate('/catalogo');   // si tu ruta es otra, cámbiala aquí
+        navigate('/CartPage');   // si tu ruta es otra, cámbiala aquí
       }, 1000);
     } catch (err) {
       console.error(
