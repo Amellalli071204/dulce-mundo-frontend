@@ -1,8 +1,7 @@
 // src/pages/LoginPage.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
-//import './LoginPage.css';
+// import './LoginPage.css'; // si lo quitaste para el build
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
@@ -20,19 +19,25 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // 👉 Ajusta la ruta si en tu backend es diferente
-      const response = await axios.post(`${API_URL}/api/auth/login`, {
+      // 👈 ruta correcta según tu backend
+      const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
 
       console.log('Login exitoso:', response.data);
       setMensaje('Has iniciado sesión correctamente 🎉');
-
-      // TODO: guardar token, redirigir, etc.
     } catch (err) {
-      console.error('Error al iniciar sesión:', err);
-      setError('Error al iniciar sesión. Revisa tus datos o intenta más tarde.');
+      console.error(
+        'Error al iniciar sesión:',
+        err.response?.status,
+        err.response?.data || err.message
+      );
+      if (err.response?.status === 401) {
+        setError('Credenciales incorrectas.');
+      } else {
+        setError('Error al iniciar sesión. Intenta más tarde.');
+      }
     } finally {
       setLoading(false);
     }

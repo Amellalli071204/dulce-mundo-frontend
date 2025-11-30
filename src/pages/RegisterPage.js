@@ -1,8 +1,7 @@
 // src/pages/RegisterPage.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
-
+// import './RegisterPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
@@ -28,9 +27,9 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      // 👉 Ajusta la ruta si tu backend usa otra
-      const response = await axios.post(`${API_URL}/api/auth/register`, {
-        name: nombre,
+      // 👈 ruta y body correctos según tu backend
+      const response = await axios.post(`${API_URL}/api/register`, {
+        nombre,   // no "name"
         email,
         password,
       });
@@ -42,7 +41,7 @@ const RegisterPage = () => {
       setPassword('');
       setConfirmPassword('');
     } catch (err) {
-      console.error('Error al registrarse:', err);
+      console.error('Error al registrarse:', err.response?.data || err.message);
       setError('Error al registrarse. Intenta más tarde.');
     } finally {
       setLoading(false);
