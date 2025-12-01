@@ -22,25 +22,29 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
+      const emailClean = email.trim().toLowerCase();
+
       const response = await axios.post(`${API_URL}/api/login`, {
-        email,
+        email: emailClean,
         password,
       });
 
-      console.log('Login exitoso:', response.data);
+      console.log('Login exitoso, respuesta backend:', response.data);
+      console.log('EMAIL LIMPIO QUE VOY A GUARDAR:', emailClean);
 
-      // ✅ Guardar sesión, correo y rol
+      // Guardar sesión y correo limpio
       localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userEmail', emailClean);
 
-      // Si el backend manda rol lo usamos, si no, lo calculamos
+      // Si el backend manda rol lo usamos, si no, lo calculamos aquí
       const rolBackend = response.data.rol;
       const rol =
-        rolBackend || (email === 'admin@gmail.com' ? 'admin' : 'cliente');
+        rolBackend || (emailClean === 'admin@gmail.com' ? 'admin' : 'cliente');
+
       localStorage.setItem('userRole', rol);
+      console.log('ROL GUARDADO:', rol);
 
       setMensaje('Ha iniciado sesión correctamente 🎉');
-
       navigate('/catalogo', { replace: true });
     } catch (err) {
       console.error('Error al iniciar sesión:', err);

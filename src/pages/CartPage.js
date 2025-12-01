@@ -17,9 +17,12 @@ const CartPage = () => {
   const [loading, setLoading] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
-  // 👇 Aquí definimos quién es admin según el correo
-  const userEmail = localStorage.getItem('userEmail');
-  const isAdmin = userEmail === 'admin@gmail.com';
+  // 👇 Leemos el correo del localStorage, lo limpiamos y comprobamos si es admin
+  const rawEmail = localStorage.getItem('userEmail') || '';
+  const emailClean = rawEmail.trim().toLowerCase();
+  const isAdmin = emailClean === 'admin@gmail.com';
+
+  console.log('CART - rawEmail:', rawEmail, 'emailClean:', emailClean, 'isAdmin:', isAdmin);
 
   const total = cartItems.reduce((acc, item) => {
     const price = parseFloat(item.precio) || 0;
@@ -163,7 +166,7 @@ const CartPage = () => {
                   Tarjeta, Transferencia, OXXO
                 </button>
 
-                {/* 👇 SOLO admin ve este botón */}
+                {/* SOLO admin ve este botón */}
                 {isAdmin && (
                   <button
                     className="btn-option cash-btn"
@@ -174,7 +177,7 @@ const CartPage = () => {
                   </button>
                 )}
 
-                {/* Mensaje solo para no-admin */}
+                {/* Mensaje solo para NO admin */}
                 {!isAdmin && (
                   <p className="cash-info">
                     El pago en efectivo solo está disponible para el

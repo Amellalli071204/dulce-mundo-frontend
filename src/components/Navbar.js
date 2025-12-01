@@ -6,11 +6,17 @@ import './Navbar.css';
 const Navbar = () => {
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-  const userRole = localStorage.getItem('userRole');
+
+  const rawEmail = localStorage.getItem('userEmail') || '';
+  const emailClean = rawEmail.trim().toLowerCase();
+  const isAdmin = emailClean === 'admin@gmail.com';
+
+  console.log('NAVBAR - rawEmail:', rawEmail, 'emailClean:', emailClean, 'isAdmin:', isAdmin);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
     navigate('/login');
   };
 
@@ -24,10 +30,11 @@ const Navbar = () => {
         <nav>
           <ul className="navbar-links">
             <li><Link to="/catalogo">Catálogo</Link></li>
-            <li><Link to="/cart">🛍️ Mi Bolsa</Link></li>
+            <li><Link to="/cart">🛍️ Mi bolsa</Link></li>
 
-            {userRole === 'admin' && (
-              <li><Link to="/admin">Panel Admin</Link></li>
+            {/* SOLO admin ve este link */}
+            {isAdmin && (
+              <li><Link to="/admin">Panel admin</Link></li>
             )}
 
             {!isAuthenticated ? (
