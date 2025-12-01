@@ -4,15 +4,15 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  // Verificamos si hay un "token" guardado en el navegador
-  const token = localStorage.getItem('userToken');
+  // ✅ Leer el flag del login
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
-  if (!token) {
-    // Si no hay token, redirigimos al usuario a la página de login
-    return <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    // Si no está logueado, lo mandamos a /login
+    return <Navigate to="/login" replace />;
   }
 
-  // Si hay un token, mostramos el contenido que la ruta debe renderizar (children)
+  // Si sí está logueado, mostramos la página protegida
   return children;
 };
 

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';   // 👈 IMPORTANTE
 // import './LoginPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
@@ -13,8 +12,6 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
-
-  const navigate = useNavigate();                // 👈 PARA REDIRIGIR
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,10 +28,13 @@ const LoginPage = () => {
       console.log('Login exitoso:', response.data);
       setMensaje('Ha iniciado sesión correctamente 🎉');
 
-      // 👇 REDIRIGE AL CATÁLOGO DESPUÉS DE 1 SEGUNDO
+      // ✅ MARCAR QUE ESTÁ AUTENTICADO
+      localStorage.setItem('isAuthenticated', 'true');
+
+      // ✅ REDIRIGIR AL CATÁLOGO PROTEGIDO (/catalogo)
       setTimeout(() => {
-  window.location.href = '/';   // 👉 Home / catálogo
-}, 1000);
+        window.location.href = '/catalogo';
+      }, 800);
     } catch (err) {
       console.error(
         'Error al iniciar sesión:',
@@ -76,7 +76,7 @@ const LoginPage = () => {
         </label>
 
         <button type="submit" disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar'}
+          {loading ? 'Entrando…' : 'Entrar'}
         </button>
 
         {error && <p className="error-message">{error}</p>}
