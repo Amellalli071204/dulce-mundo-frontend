@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import './FormPage.css';
+import { useNavigate } from 'react-router-dom';
+import './LoginPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
@@ -13,6 +14,8 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -20,21 +23,23 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-  const response = await axios.post(`${API_URL}/api/login`, {
-    email,
-    password,
-  });
+      const response = await axios.post(`${API_URL}/api/login`, {
+        email,
+        password,
+      });
 
-  console.log('Login exitoso:', response.data);
-  setMensaje('Ha iniciado sesión correctamente 🎉');
+      console.log('Login exitoso:', response.data);
+      setMensaje('Ha iniciado sesión correctamente 🎉');
 
-  // ✅ guardar autenticación
-  localStorage.setItem('isAuthenticated', 'true');
-  localStorage.setItem('userRole', response.data.rol); // <- guardar rol
+      // Guardar sesión y rol
+      localStorage.setItem('isAuthenticated', 'true');
+      if (response.data.rol) {
+        localStorage.setItem('userRole', response.data.rol);
+      }
 
-  // ✅ redirigir
-  navigate('/catalogo', { replace: true });
-   } catch (err) {
+      // Redirigir al catálogo
+      navigate('/catalogo', { replace: true });
+    } catch (err) {
       console.error(
         'Error al iniciar sesión:',
         err.response?.status,
@@ -52,35 +57,51 @@ const LoginPage = () => {
 
   return (
     <div className="login-page">
-      <h1>Iniciar sesión</h1>
-      <form onSubmit={handleSubmit} className="login-form">
-        <label>
-          Correo electrónico
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
+      <div className="login-card">
+        <h1 className="login-title">Iniciar sesión</h1>
+        <p className="login-subtitle">
+          Ingresa con tu correo y contraseña para ver el catálogo de dulces 🍬
+        </p>
 
-        <label>
-          Contraseña
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="ejemplo@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Entrando…' : 'Entrar'}
-        </button>
+          <div className="form-group">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
+          </div>
 
-        {error && <p className="error-message">{error}</p>}
-        {mensaje && <p className="success-message">{mensaje}</p>}
-      </form>
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? 'Entrando…' : 'Entrar'}
+          </button>
+
+          {error && <p className="message message-error">{error}</p>}
+          {mensaje && <p className="message message-success">{mensaje}</p>}
+        </form>
+      </div>
     </div>
   );
 };
