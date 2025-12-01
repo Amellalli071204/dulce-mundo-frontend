@@ -20,22 +20,21 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/api/login`, {
-        email,
-        password,
-      });
+  const response = await axios.post(`${API_URL}/api/login`, {
+    email,
+    password,
+  });
 
-      console.log('Login exitoso:', response.data);
-      setMensaje('Ha iniciado sesión correctamente 🎉');
+  console.log('Login exitoso:', response.data);
+  setMensaje('Ha iniciado sesión correctamente 🎉');
 
-      // ✅ MARCAR QUE ESTÁ AUTENTICADO
-      localStorage.setItem('isAuthenticated', 'true');
+  // ✅ guardar autenticación
+  localStorage.setItem('isAuthenticated', 'true');
+  localStorage.setItem('userRole', response.data.rol); // <- guardar rol
 
-      // ✅ REDIRIGIR AL CATÁLOGO PROTEGIDO (/catalogo)
-      setTimeout(() => {
-        window.location.href = '/catalogo';
-      }, 800);
-    } catch (err) {
+  // ✅ redirigir
+  navigate('/catalogo', { replace: true });
+   } catch (err) {
       console.error(
         'Error al iniciar sesión:',
         err.response?.status,
