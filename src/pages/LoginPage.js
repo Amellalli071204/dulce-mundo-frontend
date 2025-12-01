@@ -1,5 +1,4 @@
 // src/pages/LoginPage.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -29,22 +28,22 @@ const LoginPage = () => {
       });
 
       console.log('Login exitoso:', response.data);
+
+      // ✅ Guardar sesión, correo y rol
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', email);
+
+      // Si el backend manda rol lo usamos, si no, lo calculamos
+      const rolBackend = response.data.rol;
+      const rol =
+        rolBackend || (email === 'admin@gmail.com' ? 'admin' : 'cliente');
+      localStorage.setItem('userRole', rol);
+
       setMensaje('Ha iniciado sesión correctamente 🎉');
 
-      // Guardar sesión y rol
-      localStorage.setItem('isAuthenticated', 'true');
-      if (response.data.rol) {
-        localStorage.setItem('userRole', response.data.rol);
-      }
-
-      // Redirigir al catálogo
       navigate('/catalogo', { replace: true });
     } catch (err) {
-      console.error(
-        'Error al iniciar sesión:',
-        err.response?.status,
-        err.response?.data || err.message
-      );
+      console.error('Error al iniciar sesión:', err);
       if (err.response?.status === 401) {
         setError('Credenciales incorrectas.');
       } else {

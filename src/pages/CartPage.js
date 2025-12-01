@@ -17,7 +17,9 @@ const CartPage = () => {
   const [loading, setLoading] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
-  const userRole = localStorage.getItem('userRole');
+  // 👇 Aquí definimos quién es admin según el correo
+  const userEmail = localStorage.getItem('userEmail');
+  const isAdmin = userEmail === 'admin@gmail.com';
 
   const total = cartItems.reduce((acc, item) => {
     const price = parseFloat(item.precio) || 0;
@@ -41,7 +43,7 @@ const CartPage = () => {
   };
 
   const handleCashCheckout = async () => {
-    if (userRole !== 'admin') {
+    if (!isAdmin) {
       alert('Solo el administrador puede usar el pago en efectivo.');
       return;
     }
@@ -152,6 +154,7 @@ const CartPage = () => {
               <div className="payment-options">
                 <p>¿Cómo deseas pagar?</p>
 
+                {/* Todos pueden pagar digital */}
                 <button
                   className="btn-option digital-btn"
                   onClick={handleDigitalCheckout}
@@ -160,7 +163,8 @@ const CartPage = () => {
                   Tarjeta, Transferencia, OXXO
                 </button>
 
-                {userRole === 'admin' && (
+                {/* 👇 SOLO admin ve este botón */}
+                {isAdmin && (
                   <button
                     className="btn-option cash-btn"
                     onClick={handleCashCheckout}
@@ -170,7 +174,8 @@ const CartPage = () => {
                   </button>
                 )}
 
-                {userRole !== 'admin' && (
+                {/* Mensaje solo para no-admin */}
+                {!isAdmin && (
                   <p className="cash-info">
                     El pago en efectivo solo está disponible para el
                     administrador.
