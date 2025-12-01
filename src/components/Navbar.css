@@ -1,81 +1,81 @@
 /* src/components/Navbar.css */
 
 .navbar {
+  background-color: #ff6fa5;
+  color: #fff;
+  height: 64px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #ff7eb9; /* Fondo Rosa */
-  padding: 1rem 2rem;
-  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .navbar-logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
   text-decoration: none;
 }
 
-/* Contenedor de todos los links */
+.logo-main {
+  font-weight: 800;
+  font-size: 22px;
+  color: #fff;
+}
+
 .navbar-links {
+  list-style: none;
   display: flex;
+  gap: 18px;
   align-items: center;
-  flex-grow: 1; /* Ocupa el espacio restante para empujar */
-  gap: 15px; /* Espacio entre los links */
+  margin: 0;
+  padding: 0;
 }
 
-/* 2. Estilo de enlaces normales (Catálogo) */
 .navbar-links a {
-  color: white;
   text-decoration: none;
-  font-size: 1.1rem;
-  transition: color 0.3s;
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
 }
 
-/* 4. Estilo para el botón de ADMIN (DEBE SER VISIBLE) */
-.nav-admin-link {
-    background-color: #f7b731; /* Fondo Amarillo/Naranja */
-    color: #333 !important; /* Texto Oscuro */
-    padding: 0.6rem 1rem;
-    border-radius: 5px;
-    font-weight: bold !important;
-    font-size: 0.95rem;
-    text-decoration: none;
-    display: flex; 
-    align-items: center;
-    transition: background-color 0.2s;
-    margin-left: auto; /* <--- CLAVE: Empuja el grupo a la derecha */
+.navbar-links a:hover {
+  text-decoration: underline;
 }
 
-/* 5. Estilo de la Bolsa */
-.nav-cart-link {
-  background-color: white; 
-  color: #ff7eb9 !important; 
-  padding: 0.6rem 1.2rem; 
-  border-radius: 50px;
-  font-weight: bold !important;
-  display: flex;
-  align-items: center;
+.logout-button {
+  border: none;
+  background: #fff;
+  color: #ff3f7c;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* 6. Estilo del Logout */
-.btn-logout {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-family: inherit;
-    padding: 0;
-    margin-left: 10px; /* Separación de la bolsa */
+.logout-button:hover {
+  background: #ffe3ef;
 }
 
-/* Hover styles */
-.nav-admin-link:hover {
-    background-color: #f5a300;
-    transform: scale(1.02);
-}
-.nav-cart-link:hover {
-  background-color: #ffeaa7; 
+/* Responsive */
+@media (max-width: 600px) {
+  .navbar-inner {
+    padding: 0 12px;
+  }
+
+  .navbar-links {
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .logo-main {
+    font-size: 18px;
+  }
 }

@@ -1,74 +1,63 @@
 // src/components/Navbar.js
 
-import React, { useState, useEffect } from 'react'; 
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); 
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const token = localStorage.getItem('userToken');
-    const role = localStorage.getItem('userRole'); 
-
-    if (token) {
-      setIsLoggedIn(true);
-      // Normalizamos el rol a mayúsculas para comparación tolerante
-            setIsAdmin(role && role.toUpperCase() === 'ADMIN');
-    } else {
-      setIsLoggedIn(false);
-      setIsAdmin(false);
-    }
-  }, [location]); 
 
   const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userRole'); 
-    
-    setIsLoggedIn(false);
-    setIsAdmin(false); 
-    
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userRole');
     navigate('/login');
   };
 
   return (
-    <nav className="navbar">
-      <Link to="/catalogo" className="navbar-logo">
-        DulceMundo 🍬
-      </Link>
-      
-      {/* QUITAMOS EL CONTENEDOR action-group y dejamos todo plano */}
-      <div className="navbar-links">
-        
-        <Link to="/catalogo">Catálogo</Link>
+    <header className="navbar">
+      <div className="navbar-inner">
+        {/* Logo */}
+        <Link to="/catalogo" className="navbar-logo">
+          <span className="logo-main">DulceMundo</span>
+        </Link>
 
-        {isLoggedIn ? (
-          <>
-            {/* ADMIN - Colocado antes para que se muestre a la izquierda de la Bolsa */}
-            {isAdmin && (
-                <Link to="/admin" className="nav-admin-link">
-                    ADMIN ⚙️
-                </Link>
+        {/* Links */}
+        <nav>
+          <ul className="navbar-links">
+            <li>
+              <Link to="/catalogo">Catálogo</Link>
+            </li>
+            <li>
+              <Link to="/cart">Mi bolsa 🛍️</Link> {/* 👈 CARRITO */}
+            </li>
+
+            {!isAuthenticated && (
+              <>
+                <li>
+                  <Link to="/login">Iniciar sesión</Link>
+                </li>
+                <li>
+                  <Link to="/register">Registrarse</Link>
+                </li>
+              </>
             )}
 
-            <Link to="/cart" className="nav-cart-link"> 
-              <span style={{ fontSize: '1.2rem', marginRight: '5px' }}>🛍️</span> 
-              Mi Bolsa
-            </Link>
-
-            <button onClick={handleLogout} className="btn-logout">Logout</button>
-          </>
-        ) : (
-          <div className="public-links">
-            <Link to="/login">Login</Link>
-            <Link to="/register">Registrarse</Link>
-          </div>
-        )}
+            {isAuthenticated && (
+              <li>
+                <button
+                  type="button"
+                  className="logout-button"
+                  onClick={handleLogout}
+                >
+                  Cerrar sesión
+                </button>
+              </li>
+            )}
+          </ul>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 };
 
