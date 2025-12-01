@@ -5,14 +5,23 @@ import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import './CartPage.css';
 
-// URL DE LA API EN LA NUBE (PEGA AQUÍ LA URL REAL DE RAILWAY)
-const API_URL = 'https://dulce-mundo-backend-production.up.railway.app'; 
+// URL DE LA API EN LA NUBE (RAILWAY)
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const CartPage = () => {
-  const { cartItems, removeProductFromCart, addProductToCart, decreaseProductQuantity } = useCart();
+  const {
+    cartItems,
+    removeProductFromCart,
+    addProductToCart,
+    decreaseProductQuantity,
+  } = useCart();
+
   const [loading, setLoading] = useState(false);
-  const [showOptions, setShowOptions] = useState(false); 
-  
+  const [showOptions, setShowOptions] = useState(false);
+
+  // 👇 Rol guardado en el login (admin / cliente)
+  const userRole = localStorage.getItem('userRole');
+
   const total = cartItems.reduce((acc, item) => {
     const price = parseFloat(item.precio) || 0;
     return acc + price * item.quantity;
@@ -22,10 +31,13 @@ const CartPage = () => {
   const handleDigitalCheckout = async () => {
     setLoading(true);
     try {
-      // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
-      const response = await axios.post(`${API_URL}/api/create-payment-preference`, { 
-        cartItems: cartItems
-      });
+      const response = await axios.post(
+        `${API_URL}/api/create-payment-preference`,
+        {
+          cartItems: cartItems,
+        }
+      );
+
       const { init_point } = response.data;
       window.location.href = init_point;
     } catch (error) {
@@ -37,16 +49,21 @@ const CartPage = () => {
 
   // --- FUNCIÓN PARA EL PAGO EN EFECTIVO (CONTRA ENTREGA) ---
   const handleCashCheckout = async () => {
+    if (userRole !== 'admin') {
+      alert('Solo el administrador puede usar el pago en efectivo.');
+      return;
+    }
+
     setLoading(true);
     try {
-      // ESTO DEBE SER UNA PLANTILLA DE STRING CON BACKTICKS ``
-      await axios.post(`${API_URL}/api/create-cash-order`, { 
+      await axios.post(`${API_URL}/api/create-cash-order`, {
         cartItems: cartItems,
-        total: total
+        total: total,
       });
-      
-      alert('¡Orden creada! El repartidor llevará tu pedido en efectivo.');
-      
+
+      alert(
+        '✅ ¡Orden creada! El repartidor llevará tu pedido para pago en efectivo.'
+      );
     } catch (error) {
       console.error('Error al crear la orden en efectivo:', error);
       alert('Error al crear la orden en efectivo. Intenta de nuevo.');
@@ -54,7 +71,7 @@ const CartPage = () => {
       setLoading(false);
     }
   };
-  
+
   const handleInitialCheckout = () => {
     if (cartItems.length === 0) {
       alert('Tu carrito está vacío.');
@@ -66,6 +83,7 @@ const CartPage = () => {
   return (
     <div className="cart-container">
       <h1>Mi Bolsa 🛍️</h1>
+
       {cartItems.length === 0 ? (
         <p>Tu bolsa está vacía. ¡Añade unos dulces!</p>
       ) : (
@@ -73,21 +91,32 @@ const CartPage = () => {
           <div className="cart-items-list">
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item">
-                <img src={item.imagen_url} alt={item.nombre} className="cart-item-image" />
-                
+                {item.imagen_url && (
+                  <img
+                    src={item.imagen_url}
+                    alt={item.nombre}
+                    className="cart-item-image"
+                  />
+                )}
+
                 <div className="cart-item-details">
                   <h3>{item.nombre}</h3>
-                  <p>Precio: ${(parseFloat(item.precio) || 0).toFixed(2)}</p>
-                  
+                  <p>
+                    Precio: $
+                    {(parseFloat(item.precio) || 0).toFixed(2)}
+                  </p>
+
                   <div className="quantity-controls">
-                    <button 
+                    <button
                       className="btn-quantity"
                       onClick={() => decreaseProductQuantity(item.id)}
                     >
                       -
                     </button>
-                    <span className="quantity-display">{item.quantity}</span>
-                    <button 
+                    <span className="quantity-display">
+                      {item.quantity}
+                    </span>
+                    <button
                       className="btn-quantity"
                       onClick={() => addProductToCart(item)}
                     >
@@ -95,13 +124,18 @@ const CartPage = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="cart-item-price">
-                  <p>Subtotal: ${(parseFloat(item.precio) * item.quantity).toFixed(2)}</p>
+                  <p>
+                    Subtotal: $
+                    {(
+                      (parseFloat(item.precio) || 0) * item.quantity
+                    ).toFixed(2)}
+                  </p>
                 </div>
-                
+
                 <div className="cart-item-actions">
-                  <button 
+                  <button
                     className="btn-remove-item"
                     onClick={() => removeProductFromCart(item.id)}
                   >
@@ -111,13 +145,14 @@ const CartPage = () => {
               </div>
             ))}
           </div>
+
           <div className="cart-summary">
             <h2>Resumen de la compra</h2>
             <h3>Total: ${total.toFixed(2)}</h3>
 
             {!showOptions ? (
-              <button 
-                className="btn-checkout" 
+              <button
+                className="btn-checkout"
                 onClick={handleInitialCheckout}
               >
                 Proceder al Pago
@@ -125,20 +160,33 @@ const CartPage = () => {
             ) : (
               <div className="payment-options">
                 <p>¿Cómo deseas pagar?</p>
-                <button 
-                  className="btn-option digital-btn" 
+
+                {/* Pago digital: disponible para todos */}
+                <button
+                  className="btn-option digital-btn"
                   onClick={handleDigitalCheckout}
                   disabled={loading}
                 >
                   Tarjeta, Transferencia, OXXO
                 </button>
-                <button 
-                  className="btn-option cash-btn" 
-                  onClick={handleCashCheckout}
-                  disabled={loading}
-                >
-                  Efectivo (Contra Entrega)
-                </button>
+
+                {/* Pago en efectivo: SOLO admin */}
+                {userRole === 'admin' && (
+                  <button
+                    className="btn-option cash-btn"
+                    onClick={handleCashCheckout}
+                    disabled={loading}
+                  >
+                    Efectivo (Contra Entrega)
+                  </button>
+                )}
+
+                {userRole !== 'admin' && (
+                  <p className="cash-info">
+                    El pago en efectivo solo está disponible para el
+                    administrador.
+                  </p>
+                )}
               </div>
             )}
           </div>
