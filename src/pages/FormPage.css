@@ -98,3 +98,127 @@
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
+
+/* src/pages/FormPage.css */
+
+/* 1. Fondo y Contenedor Principal */
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh; /* Altura casi completa de la pantalla */
+  background-color: #fff0f6; /* Fondo rosa muy suave */
+  padding: 20px;
+}
+
+/* 2. La Tarjeta Blanca (El cuadro del formulario) */
+.auth-form {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 16px; /* Bordes redondeados modernos */
+  box-shadow: 0 10px 30px rgba(232, 67, 147, 0.15); /* Sombra rosada elegante */
+  width: 100%;
+  max-width: 400px; /* Ancho máximo para que se vea bien en PC y móvil */
+  text-align: center;
+}
+
+/* 3. Títulos */
+.auth-form h2 {
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* 4. Inputs (Cajas de texto) */
+.form-group {
+  margin-bottom: 1.2rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #555;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.85rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box; /* Evita que el padding rompa el diseño */
+  transition: all 0.3s ease;
+}
+
+/* Efecto al escribir */
+.form-group input:focus {
+  border-color: #ff7eb9; /* Borde rosa al seleccionar */
+  background-color: #fffbfd;
+}
+
+/* 5. Botón Principal */
+.btn-submit {
+  width: 100%;
+  padding: 0.9rem;
+  background-color: #ff7eb9; /* Rosa DulceMundo */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.btn-submit:hover {
+  background-color: #e84393; /* Rosa más intenso al pasar el mouse */
+}
+
+.btn-submit:active {
+  transform: scale(0.98); /* Pequeño efecto de "click" */
+}
+
+/* 6. Enlaces (Cambiar a registro) */
+.form-switch {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.form-switch a {
+  color: #e84393;
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.form-switch a:hover {
+  text-decoration: underline;
+}
+
+/* 7. Mensajes de Error y Éxito */
+.error-message {
+  background-color: #ffe5e5;
+  color: #d63031;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  border: 1px solid #fab1a0;
+}
+
+.success-message {
+  background-color: #e3f9e5;
+  color: #27ae60;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  border: 1px solid #b7e4c7;
+}

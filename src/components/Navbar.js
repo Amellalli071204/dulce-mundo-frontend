@@ -1,12 +1,12 @@
 // src/components/Navbar.js
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   const navigate = useNavigate();
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userRole = localStorage.getItem('userRole');
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
@@ -17,39 +17,27 @@ const Navbar = () => {
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        {/* Logo */}
         <Link to="/catalogo" className="navbar-logo">
-          <span className="logo-main">DulceMundo</span>
+          <span className="logo-main">DulceMundo 🍭</span>
         </Link>
 
-        {/* Links */}
         <nav>
           <ul className="navbar-links">
-            <li>
-              <Link to="/catalogo">Catálogo</Link>
-            </li>
-            <li>
-              <Link to="/cart">Mi bolsa 🛍️</Link> {/* 👈 CARRITO */}
-            </li>
+            <li><Link to="/catalogo">Catálogo</Link></li>
+            <li><Link to="/cart">🛍️ Mi Bolsa</Link></li>
 
-            {!isAuthenticated && (
-              <>
-                <li>
-                  <Link to="/login">Iniciar sesión</Link>
-                </li>
-                <li>
-                  <Link to="/register">Registrarse</Link>
-                </li>
-              </>
+            {userRole === 'admin' && (
+              <li><Link to="/admin">Panel Admin</Link></li>
             )}
 
-            {isAuthenticated && (
+            {!isAuthenticated ? (
+              <>
+                <li><Link to="/login">Iniciar sesión</Link></li>
+                <li><Link to="/register">Registrarse</Link></li>
+              </>
+            ) : (
               <li>
-                <button
-                  type="button"
-                  className="logout-button"
-                  onClick={handleLogout}
-                >
+                <button className="logout-button" onClick={handleLogout}>
                   Cerrar sesión
                 </button>
               </li>
