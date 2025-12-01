@@ -1,25 +1,98 @@
 /* src/pages/ProductDetailPage.css */
-/* ... otros estilos ... */
+
+.product-detail-page {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px 24px 60px;
+  min-height: calc(100vh - 140px); /* para que llene casi toda la pantalla */
+}
+
+/* Tarjeta principal */
+.product-detail-card {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 32px;
+  background-color: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+  padding: 28px;
+  align-items: center;
+}
+
+/* Imagen grande */
+.product-detail-image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+/* Columna de texto */
+.product-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.product-detail-info h1 {
+  font-size: 2.2rem;
+  margin: 0;
+  color: #222222;
+}
 
 .product-detail-price {
-  /* ... */
-  /* Cambiamos el color del precio */
-  color: #e84393;
-  margin-bottom: 1.5rem;
-}
-
-.btn-add-to-cart {
-  /* Cambiamos el color del botón principal */
-  background-color: #ff7eb9;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
   font-size: 1.2rem;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  color: #ff5c93; /* tono rosa del sitio */
 }
 
-.btn-add-to-cart:hover {
-  background-color: #e84393; /* Un tono más oscuro al pasar el mouse */
+.product-detail-description {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #555555;
+}
+
+/* Botón igual estilo que “Añadir” del catálogo */
+.product-detail-add-btn {
+  margin-top: 10px;
+  align-self: flex-start;
+  padding: 10px 32px;
+  border-radius: 999px;
+  border: none;
+  background-color: #ff5c93;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+  box-shadow: 0 6px 15px rgba(255, 92, 147, 0.35);
+}
+
+.product-detail-add-btn:hover {
+  background-color: #ff3f80;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(255, 63, 128, 0.45);
+}
+
+.product-detail-add-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* Responsive: en celular se pone en columna */
+@media (max-width: 900px) {
+  .product-detail-card {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+
+  .product-detail-image {
+    max-height: 300px;
+  }
+
+  .product-detail-page {
+    margin: 20px auto 40px;
+    padding: 12px 16px 40px;
+  }
 }
