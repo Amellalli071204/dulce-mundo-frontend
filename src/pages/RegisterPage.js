@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-// import './RegisterPage.css';
+import './RegisterPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
