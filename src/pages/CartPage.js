@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import './CartPage.css';
 
@@ -16,14 +15,14 @@ const CartPage = () => {
     decreaseProductQuantity,
   } = useCart();
 
-  const { user } = useAuth();
-
-  // 🔍 Calculamos si es admin
-  const emailClean = (user?.email || '').trim().toLowerCase();
+  // Leemos el correo guardado al iniciar sesión
+  const rawEmail = localStorage.getItem('userEmail');
+  const emailClean = (rawEmail || '').trim().toLowerCase();
   const isAdmin = emailClean === 'admin@gmail.com';
+
   console.log(
     'CART - rawEmail:',
-    user?.email,
+    rawEmail,
     'emailClean:',
     emailClean,
     'isAdmin:',
@@ -101,6 +100,7 @@ const CartPage = () => {
         <p>Tu bolsa está vacía. ¡Añade unos dulces!</p>
       ) : (
         <>
+          {/* LISTA DE PRODUCTOS */}
           <div className="cart-items-list">
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item">
@@ -150,6 +150,7 @@ const CartPage = () => {
             ))}
           </div>
 
+          {/* RESUMEN Y MÉTODOS DE PAGO */}
           <div className="cart-summary">
             <h2>Resumen de la compra</h2>
             <h3>Total: ${total.toFixed(2)}</h3>
@@ -166,7 +167,7 @@ const CartPage = () => {
               <div className="payment-options">
                 <p>¿Cómo deseas pagar?</p>
 
-                {/* Botón digital: TODOS lo ven */}
+                {/* TODOS ven el pago digital */}
                 <button
                   className="btn-option digital-btn"
                   onClick={handleDigitalCheckout}
@@ -175,7 +176,7 @@ const CartPage = () => {
                   Tarjeta, Transferencia, OXXO
                 </button>
 
-                {/* Botón EFECTIVO: SOLO si NO es admin */}
+                {/* SOLO CLIENTES ven el pago en efectivo */}
                 {!isAdmin && (
                   <>
                     <button
@@ -191,11 +192,12 @@ const CartPage = () => {
                   </>
                 )}
 
-                {/* Mensaje SOLO para admin */}
+                {/* SOLO ADMIN ve este mensaje */}
                 {isAdmin && (
                   <p className="cash-info">
-                    El pago en efectivo lo realizan los clientes desde sus
-                    cuentas. Aquí solo ves el resumen de compra. 🙂
+                    El pago en efectivo solo está disponible para los clientes.
+                    Desde esta cuenta de administrador solo puedes revisar y
+                    gestionar pedidos.
                   </p>
                 )}
               </div>
