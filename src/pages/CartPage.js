@@ -1,9 +1,12 @@
 // src/pages/CartPage.js
+
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import './CartPage.css';
 
+// URL del backend en Railway
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const CartPage = () => {
@@ -14,40 +17,42 @@ const CartPage = () => {
     decreaseProductQuantity,
   } = useCart();
 
+  const { isAdmin } = useAuth(); // <-- aquí sabemos si es admin
   const [loading, setLoading] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-
-  // 👇 Leemos el correo del localStorage, lo limpiamos y comprobamos si es admin
-  const rawEmail = localStorage.getItem('userEmail') || '';
-  const emailClean = rawEmail.trim().toLowerCase();
-  const isAdmin = emailClean === 'admin@gmail.com';
-
-  console.log('CART - rawEmail:', rawEmail, 'emailClean:', emailClean, 'isAdmin:', isAdmin);
 
   const total = cartItems.reduce((acc, item) => {
     const price = parseFloat(item.precio) || 0;
     return acc + price * item.quantity;
   }, 0);
 
+  // --- PAGO DIGITAL (Mercado Pago) ---
   const handleDigitalCheckout = async () => {
+    if (cartItems.length === 0) {
+      alert('Tu carrito está vacío.');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await axios.post(
         `${API_URL}/api/create-payment-preference`,
         { cartItems }
       );
+
       const { init_point } = response.data;
       window.location.href = init_point;
     } catch (error) {
       console.error('Error al procesar el pago digital:', error);
-      alert('Error al iniciar el proceso de pago digital.');
+      alert('Error al iniciar el proceso de pago digital. Intenta de nuevo.');
       setLoading(false);
     }
   };
 
+  // --- PAGO EN EFECTIVO (Contra Entrega) ---
   const handleCashCheckout = async () => {
-    if (!isAdmin) {
-      alert('Solo el administrador puede usar el pago en efectivo.');
+    if (cartItems.length === 0) {
+      alert('Tu carrito está vacío.');
       return;
     }
 
@@ -57,12 +62,13 @@ const CartPage = () => {
         cartItems,
         total,
       });
+
       alert(
-        '✅ ¡Orden creada! El repartidor llevará tu pedido para pago en efectivo.'
+        '¡Orden creada! El repartidor llevará tu pedido y pagarás en efectivo.'
       );
     } catch (error) {
       console.error('Error al crear la orden en efectivo:', error);
-      alert('Error al crear la orden en efectivo.');
+      alert('Error al crear la orden en efectivo. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -87,20 +93,15 @@ const CartPage = () => {
           <div className="cart-items-list">
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item">
-                {item.imagen_url && (
-                  <img
-                    src={item.imagen_url}
-                    alt={item.nombre}
-                    className="cart-item-image"
-                  />
-                )}
+                <img
+                  src={item.imagen_url}
+                  alt={item.nombre}
+                  className="cart-item-image"
+                />
 
                 <div className="cart-item-details">
                   <h3>{item.nombre}</h3>
-                  <p>
-                    Precio: $
-                    {(parseFloat(item.precio) || 0).toFixed(2)}
-                  </p>
+                  <p>Precio: ${(parseFloat(item.precio) || 0).toFixed(2)}</p>
 
                   <div className="quantity-controls">
                     <button
@@ -109,9 +110,7 @@ const CartPage = () => {
                     >
                       -
                     </button>
-                    <span className="quantity-display">
-                      {item.quantity}
-                    </span>
+                    <span className="quantity-display">{item.quantity}</span>
                     <button
                       className="btn-quantity"
                       onClick={() => addProductToCart(item)}
@@ -124,9 +123,7 @@ const CartPage = () => {
                 <div className="cart-item-price">
                   <p>
                     Subtotal: $
-                    {(
-                      (parseFloat(item.precio) || 0) * item.quantity
-                    ).toFixed(2)}
+                    {(parseFloat(item.precio) * item.quantity).toFixed(2)}
                   </p>
                 </div>
 
@@ -150,6 +147,7 @@ const CartPage = () => {
               <button
                 className="btn-checkout"
                 onClick={handleInitialCheckout}
+                disabled={loading}
               >
                 Proceder al pago
               </button>
@@ -157,7 +155,7 @@ const CartPage = () => {
               <div className="payment-options">
                 <p>¿Cómo deseas pagar?</p>
 
-                {/* Todos pueden pagar digital */}
+                {/* Botón digital: TODOS lo ven */}
                 <button
                   className="btn-option digital-btn"
                   onClick={handleDigitalCheckout}
@@ -166,21 +164,22 @@ const CartPage = () => {
                   Tarjeta, Transferencia, OXXO
                 </button>
 
-                {/* SOLO admin ve este botón */}
-                {isAdmin && (
+                {/* Botón EFECTIVO: SOLO CLIENTES (NO admin) */}
+                {!isAdmin && (
                   <button
                     className="btn-option cash-btn"
                     onClick={handleCashCheckout}
                     disabled={loading}
                   >
-                    Efectivo (Contra Entrega)
+                    Efectivo (Contra entrega)
                   </button>
                 )}
 
-                {/* Mensaje solo para NO admin */}
-                {!isAdmin && (
+                {/* Mensaje solo para el admin */}
+                {isAdmin && (
                   <p className="cash-info">
-                    El pago en efectivo solo está disponible para el
+                    El pago en efectivo lo realizan los clientes desde sus
+                    cuentas. Tú puedes administrar sus pedidos desde el panel de
                     administrador.
                   </p>
                 )}
