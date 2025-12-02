@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import './CartPage.css';
 
-// URL del backend en Railway
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const CartPage = () => {
@@ -17,7 +16,13 @@ const CartPage = () => {
     decreaseProductQuantity,
   } = useCart();
 
-  const { isAdmin } = useAuth(); // <-- aquí sabemos si es admin
+  const { user } = useAuth();
+
+  // 🔍 Calculamos aquí si es admin
+  const emailClean = (user?.email || '').trim().toLowerCase();
+  const isAdmin = emailClean === 'admin@gmail.com';
+  console.log('[CartPage] emailClean:', emailClean, 'isAdmin:', isAdmin);
+
   const [loading, setLoading] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
@@ -49,7 +54,7 @@ const CartPage = () => {
     }
   };
 
-  // --- PAGO EN EFECTIVO (Contra Entrega) ---
+  // --- PAGO EN EFECTIVO (Contra entrega) ---
   const handleCashCheckout = async () => {
     if (cartItems.length === 0) {
       alert('Tu carrito está vacío.');
@@ -164,7 +169,7 @@ const CartPage = () => {
                   Tarjeta, Transferencia, OXXO
                 </button>
 
-                {/* Botón EFECTIVO: SOLO CLIENTES (NO admin) */}
+                {/* Botón EFECTIVO: SOLO si NO es admin */}
                 {!isAdmin && (
                   <button
                     className="btn-option cash-btn"
