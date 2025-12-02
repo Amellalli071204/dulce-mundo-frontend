@@ -18,10 +18,17 @@ const CartPage = () => {
 
   const { user } = useAuth();
 
-  // 🔍 Calculamos aquí si es admin
+  // 🔍 Calculamos si es admin
   const emailClean = (user?.email || '').trim().toLowerCase();
   const isAdmin = emailClean === 'admin@gmail.com';
-  console.log('[CartPage] emailClean:', emailClean, 'isAdmin:', isAdmin);
+  console.log(
+    'CART - rawEmail:',
+    user?.email,
+    'emailClean:',
+    emailClean,
+    'isAdmin:',
+    isAdmin
+  );
 
   const [loading, setLoading] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -44,7 +51,6 @@ const CartPage = () => {
         `${API_URL}/api/create-payment-preference`,
         { cartItems }
       );
-
       const { init_point } = response.data;
       window.location.href = init_point;
     } catch (error) {
@@ -171,21 +177,25 @@ const CartPage = () => {
 
                 {/* Botón EFECTIVO: SOLO si NO es admin */}
                 {!isAdmin && (
-                  <button
-                    className="btn-option cash-btn"
-                    onClick={handleCashCheckout}
-                    disabled={loading}
-                  >
-                    Efectivo (Contra entrega)
-                  </button>
+                  <>
+                    <button
+                      className="btn-option cash-btn"
+                      onClick={handleCashCheckout}
+                      disabled={loading}
+                    >
+                      Efectivo (Contra entrega)
+                    </button>
+                    <p className="cash-info">
+                      También puedes pagar en efectivo al recibir tu pedido. 💵
+                    </p>
+                  </>
                 )}
 
-                {/* Mensaje solo para el admin */}
+                {/* Mensaje SOLO para admin */}
                 {isAdmin && (
                   <p className="cash-info">
                     El pago en efectivo lo realizan los clientes desde sus
-                    cuentas. Tú puedes administrar sus pedidos desde el panel de
-                    administrador.
+                    cuentas. Aquí solo ves el resumen de compra. 🙂
                   </p>
                 )}
               </div>
