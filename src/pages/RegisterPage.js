@@ -2,22 +2,23 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import './RegisterPage.css'; 
+import { useNavigate } from 'react-router-dom';
+import './registerpage.css'; // usa el nombre que ya tienes de tu CSS
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
+
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (!nombre || !email || !password || !confirmPassword) {
       setError('Por favor completa todos los campos.');
@@ -30,6 +31,7 @@ const RegisterPage = () => {
     }
 
     try {
+      // 1. Registrar usuario en el backend
       const response = await axios.post(`${API_URL}/api/register`, {
         nombre,
         email,
@@ -37,26 +39,41 @@ const RegisterPage = () => {
       });
 
       console.log('Registro exitoso:', response.data);
-      setSuccess('Usuario registrado con éxito. Ahora puedes iniciar sesión 🤗');
+
+      // 2. Guardar "sesión" igual que en el login
+      const emailClean = email.trim().toLowerCase();
+
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', emailClean);
+
+      // (Opcional) si usas algo como rol admin, puedes guardar esto también:
+      // if (emailClean === 'admin@gmail.com') {
+      //   localStorage.setItem('isAdmin', 'true');
+      // } else {
+      //   localStorage.removeItem('isAdmin');
+      // }
+
+      // 3. Limpiar formulario
       setNombre('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
+
+      // 4. Redirigir directo al catálogo
+      navigate('/catalogo');
     } catch (err) {
       console.error('Error al registrar:', err);
       setError('Error al registrarse. Intenta más tarde.');
     }
   };
 
-
-  
   return (
     <div className="register-page">
       <div className="register-card">
         <div>
           <h1 className="register-title">Crear cuenta</h1>
           <p className="register-subtitle">
-            Llena tus datos para guardar tu perfil y poder comprar dulces más fácil.
+            Llena tus datos para comprar tus dulces favoritos 🍬
           </p>
         </div>
 
@@ -106,7 +123,6 @@ const RegisterPage = () => {
           </div>
 
           {error && <div className="register-error">{error}</div>}
-          {success && <div className="register-success">{success}</div>}
 
           <button type="submit" className="register-submit">
             Registrarme
