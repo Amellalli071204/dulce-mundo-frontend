@@ -2,112 +2,139 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import './RegisterPage.css';
+import { useNavigate } from 'react-router-dom';
+
+// 👇 Reutilizamos los mismos estilos del login
+import './LoginPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
+
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [mensaje, setMensaje] = useState('');
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();               // 👈 MUY IMPORTANTE
-    console.log('Submit registro');   // para ver que sí entra
-    setMensaje('');
-    setError('');
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (!nombre || !email || !password || !confirmPassword) {
+      setErrorMessage('Por favor, completa todos los campos.');
+      return;
+    }
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setErrorMessage('Las contraseñas no coinciden.');
       return;
     }
 
     setLoading(true);
 
     try {
-      console.log('Llamando a:', `${API_URL}/api/register`);
       const response = await axios.post(`${API_URL}/api/register`, {
-        nombre,      // 👈 mismo nombre que en el backend
+        nombre,
         email,
         password,
       });
 
-      console.log('Registro exitoso:', response.data);
-      setMensaje('Te registraste correctamente 🎉');
+      console.log('Respuesta registro:', response.data);
+      setSuccessMessage('Cuenta creada con éxito 🎉 Ahora puedes iniciar sesión.');
       setNombre('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-    } catch (err) {
-      console.error(
-        'Error al registrarse:',
-        err.response?.status,
-        err.response?.data || err.message
-      );
-      setError('Error al registrarse. Intenta más tarde.');
+
+      // Pequeño delay y redirigimos al login
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    } catch (error) {
+      console.error('Error al registrar:', error);
+      setErrorMessage('Error al registrarse. Intenta más tarde.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="register-page">
-      <h1>Crear cuenta</h1>
+    <div className="login-page">
+      <div className="login-card">
+        <h1>Crear cuenta</h1>
+        <p>Regístrate para empezar a comprar tus dulces favoritos 🍬</p>
 
-      {/* 👇 SIN action, SIN method, SOLO onSubmit */}
-      <form onSubmit={handleSubmit} className="register-form">
-        <label>
-          Nombre
-          <input
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-          />
-        </label>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="nombre">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Tu nombre"
+            />
+          </div>
 
-        <label>
-          Correo electrónico
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
+          <div className="form-group">
+            <label htmlFor="email">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tucorreo@example.com"
+            />
+          </div>
 
-        <label>
-          Contraseña
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
+          <div className="form-group">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+            />
+          </div>
 
-        <label>
-          Confirmar contraseña
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </label>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirmar contraseña</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repite la contraseña"
+            />
+          </div>
 
-        {/* 👇 type="submit" para que dispare onSubmit del form */}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Creando cuenta...' : 'Registrarme'}
-        </button>
+          {errorMessage && (
+            <p className="error-message">
+              {errorMessage}
+            </p>
+          )}
 
-        {error && <p className="error-message">{error}</p>}
-        {mensaje && <p className="success-message">{mensaje}</p>}
-      </form>
+          {successMessage && (
+            <p className="success-message">
+              {successMessage}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? 'Creando cuenta...' : 'Registrarme'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
