@@ -177,7 +177,7 @@ const CartPage = () => {
                 </button>
 
                 {/* SOLO CLIENTES ven el pago en efectivo */}
-                {!isAdmin && (
+                { (
                   <>
                     <button
                       className="btn-option cash-btn"
