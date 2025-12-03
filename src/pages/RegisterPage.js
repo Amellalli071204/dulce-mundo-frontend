@@ -48,6 +48,8 @@ const RegisterPage = () => {
     }
   };
 
+
+  
   return (
     <div className="register-page">
       <div className="register-card">
