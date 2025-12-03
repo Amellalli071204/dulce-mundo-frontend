@@ -119,3 +119,25 @@
     font-size: 24px;
   }
 }
+
+/* ===== RESPONSIVE PARA LOGIN ===== */
+@media (max-width: 600px) {
+  .login-page {
+    padding: 1.5rem 1rem 2.5rem;  /* menos ancho, más aire arriba/abajo */
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 360px;
+    padding: 1.75rem 1.5rem 2.1rem;
+    border-radius: 20px;
+  }
+
+  .login-title {
+    font-size: 1.7rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.95rem;
+  }
+}

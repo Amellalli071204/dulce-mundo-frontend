@@ -17,3 +17,17 @@ main {
   margin: 20px auto;
   padding: 0 20px;
 }
+
+/* Asegura margen debajo del navbar */
+.App main {
+  padding: 2rem 1.5rem 2.5rem;
+  box-sizing: border-box;
+}
+
+/* En móviles el padding lateral es más pequeño,
+   pero dejamos buen espacio arriba para que no se pegue al navbar */
+@media (max-width: 600px) {
+  .App main {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+}
