@@ -2,40 +2,32 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
-// 👇 Reutilizamos los mismos estilos del login
-import './LoginPage.css';
+import './RegisterPage.css'; 
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const RegisterPage = () => {
-  const navigate = useNavigate();
-
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
+    setError('');
+    setSuccess('');
 
     if (!nombre || !email || !password || !confirmPassword) {
-      setErrorMessage('Por favor, completa todos los campos.');
+      setError('Por favor completa todos los campos.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('Las contraseñas no coinciden.');
+      setError('Las contraseñas no coinciden.');
       return;
     }
-
-    setLoading(true);
 
     try {
       const response = await axios.post(`${API_URL}/api/register`, {
@@ -44,55 +36,52 @@ const RegisterPage = () => {
         password,
       });
 
-      console.log('Respuesta registro:', response.data);
-      setSuccessMessage('Cuenta creada con éxito 🎉 Ahora puedes iniciar sesión.');
+      console.log('Registro exitoso:', response.data);
+      setSuccess('Usuario registrado con éxito. Ahora puedes iniciar sesión 🤗');
       setNombre('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-
-      // Pequeño delay y redirigimos al login
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
-    } catch (error) {
-      console.error('Error al registrar:', error);
-      setErrorMessage('Error al registrarse. Intenta más tarde.');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error('Error al registrar:', err);
+      setError('Error al registrarse. Intenta más tarde.');
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <h1>Crear cuenta</h1>
-        <p>Regístrate para empezar a comprar tus dulces favoritos 🍬</p>
+    <div className="register-page">
+      <div className="register-card">
+        <div>
+          <h1 className="register-title">Crear cuenta</h1>
+          <p className="register-subtitle">
+            Llena tus datos para guardar tu perfil y poder comprar dulces más fácil.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
+        <form className="register-form" onSubmit={handleSubmit}>
+          <div className="register-field">
             <label htmlFor="nombre">Nombre</label>
             <input
               id="nombre"
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              placeholder="Tu nombre"
+              placeholder="Tu nombre completo"
             />
           </div>
 
-          <div className="form-group">
+          <div className="register-field">
             <label htmlFor="email">Correo electrónico</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tucorreo@example.com"
+              placeholder="tucorreo@gmail.com"
             />
           </div>
 
-          <div className="form-group">
+          <div className="register-field">
             <label htmlFor="password">Contraseña</label>
             <input
               id="password"
@@ -103,37 +92,28 @@ const RegisterPage = () => {
             />
           </div>
 
-          <div className="form-group">
+          <div className="register-field">
             <label htmlFor="confirmPassword">Confirmar contraseña</label>
             <input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repite la contraseña"
+              placeholder="Escribe la misma contraseña"
             />
           </div>
 
-          {errorMessage && (
-            <p className="error-message">
-              {errorMessage}
-            </p>
-          )}
+          {error && <div className="register-error">{error}</div>}
+          {success && <div className="register-success">{success}</div>}
 
-          {successMessage && (
-            <p className="success-message">
-              {successMessage}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            className="login-button"
-            disabled={loading}
-          >
-            {loading ? 'Creando cuenta...' : 'Registrarme'}
+          <button type="submit" className="register-submit">
+            Registrarme
           </button>
         </form>
+
+        <p className="register-footer-text">
+          ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
+        </p>
       </div>
     </div>
   );
