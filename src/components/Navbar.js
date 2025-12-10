@@ -7,7 +7,6 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Solo para saber si hay alguien logeado
   const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
@@ -21,21 +20,35 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // ¿Estoy en /login o /register?
+  // Normalizamos el path para evitar detalles de mayúsculas / slashes
+  const path = location.pathname.toLowerCase();
   const isAuthPage =
-    location.pathname === '/login' || location.pathname === '/register';
+    path.startsWith('/login') || path.startsWith('/register');
+
+  // 👀 Solo para depurar: mira esto en la consola del navegador
+  console.log('NAVBAR -> path:', path, 'isAuthPage:', isAuthPage, 'userEmail:', userEmail);
 
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        {/* Logo (puedes cambiar el link si quieres que vaya a / en lugar de /catalogo) */}
-        <Link to="/catalogo" className="navbar-logo">
+        <Link to={userEmail ? '/catalogo' : '/login'} className="navbar-logo">
           DulceMundo <span role="img" aria-label="dulce">🍭</span>
         </Link>
       </div>
 
       <div className="navbar-right">
-        {/* ---- LINKS PRINCIPALES: SOLO después de iniciar sesión Y NO en login/register ---- */}
+        {/* 🔒 PÁGINAS DE LOGIN / REGISTER:
+            aquí NO mostramos Catálogo, Mi bolsa ni Cerrar sesión */}
+        {isAuthPage && !userEmail && (
+          <Link
+            to={path.startsWith('/login') ? '/register' : '/login'}
+            className="nav-link"
+          >
+            {path.startsWith('/login') ? 'Registrarse' : 'Iniciar sesión'}
+          </Link>
+        )}
+
+        {/* 🧁 Usuario logueado y NO estamos en login/register */}
         {!isAuthPage && userEmail && (
           <>
             <Link to="/catalogo" className="nav-link">
@@ -44,11 +57,16 @@ const Navbar = () => {
             <Link to="/cart" className="nav-link">
               Mi bolsa
             </Link>
+
+            <button className="nav-button-logout" onClick={handleLogout}>
+              Cerrar sesión
+            </button>
           </>
         )}
 
-        {/* ---- LOGIN / REGISTER cuando NO está logeado y NO está en esas pantallas ---- */}
-        {!userEmail && !isAuthPage && (
+        {/* ⛔ Usuario NO logueado y NO estamos en login/register
+            (por si alguien entra directo a otra URL) */}
+        {!isAuthPage && !userEmail && (
           <>
             <Link to="/login" className="nav-link">
               Iniciar sesión
@@ -57,23 +75,6 @@ const Navbar = () => {
               Registrarse
             </Link>
           </>
-        )}
-
-        {/* ---- En las pantallas de login/registro sólo mostramos un enlace de cambio ---- */}
-        {!userEmail && isAuthPage && (
-          <Link
-            to={location.pathname === '/login' ? '/register' : '/login'}
-            className="nav-link"
-          >
-            {location.pathname === '/login' ? 'Registrarse' : 'Iniciar sesión'}
-          </Link>
-        )}
-
-        {/* ---- BOTÓN CERRAR SESIÓN: sólo si está logeado y NO está en login/register ---- */}
-        {userEmail && !isAuthPage && (
-          <button className="nav-button-logout" onClick={handleLogout}>
-            Cerrar sesión
-          </button>
         )}
       </div>
     </nav>
