@@ -47,11 +47,11 @@ const RegisterPage = () => {
       localStorage.setItem('userEmail', emailClean);
 
       // (Opcional) si usas algo como rol admin, puedes guardar esto también:
-      // if (emailClean === 'admin@gmail.com') {
-      //   localStorage.setItem('isAdmin', 'true');
-      // } else {
-      //   localStorage.removeItem('isAdmin');
-      // }
+      if (emailClean === 'admin@gmail.com') {
+        localStorage.setItem('isAdmin', 'true');
+        } else {
+        localStorage.removeItem('isAdmin');
+      }
 
       // 3. Limpiar formulario
       setNombre('');
