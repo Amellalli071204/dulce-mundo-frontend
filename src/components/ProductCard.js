@@ -9,7 +9,6 @@ const ProductCard = ({ producto }) => {
   const navigate = useNavigate();
   const { addProductToCart } = useCart();
 
-  // 🚨 Defensa: si no hay producto, no renderizamos nada
   if (!producto) {
     console.warn('ProductCard se llamó sin "producto"');
     return null;
@@ -23,7 +22,6 @@ const ProductCard = ({ producto }) => {
     navigate(`/product/${producto.id}`);
   };
 
-  // Por si algún campo viene null/undefined
   const imagen = producto.imagen_url || producto.imagen || '';
   const nombre = producto.nombre || 'Producto';
   const precio = parseFloat(producto.precio || 0).toFixed(2);
