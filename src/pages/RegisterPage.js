@@ -1,31 +1,27 @@
 // src/pages/RegisterPage.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './RegisterPage.css'; // usa el nombre que ya tienes de tu CSS
-import { useAuth } from '../context/AuthContext';   
-
+import { useAuth } from '../context/AuthContext';
+import './RegisterPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const RegisterPage = () => {
-  const navigate = useNavigate();
-
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (!nombre || !email || !password || !confirmPassword) {
-      setError('Por favor completa todos los campos.');
-      return;
-    }
+    setSuccess('');
 
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden.');
@@ -33,7 +29,6 @@ const RegisterPage = () => {
     }
 
     try {
-      // 1. Registrar usuario en el backend
       const response = await axios.post(`${API_URL}/api/register`, {
         nombre,
         email,
@@ -41,30 +36,17 @@ const RegisterPage = () => {
       });
 
       console.log('Registro exitoso:', response.data);
+      setSuccess('Cuenta creada correctamente. Redirigiendo...');
 
-      // 2. Guardar "sesión" igual que en el login
-      const emailClean = email.trim().toLowerCase();
+      // Guardar sesión automáticamente
+      login(email);
 
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', emailClean);
-
-      // (Opcional) si usas algo como rol admin, puedes guardar esto también:
-      if (emailClean === 'admin@gmail.com') {
-        localStorage.setItem('isAdmin', 'true');
-        } else {
-        localStorage.removeItem('isAdmin');
-      }
-
-      // 3. Limpiar formulario
-      setNombre('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-
-      // 4. Redirigir directo al catálogo
-      navigate('/catalogo');
+      // Ir al catálogo después de un pequeño delay
+      setTimeout(() => {
+        navigate('/catalogo');
+      }, 800);
     } catch (err) {
-      console.error('Error al registrar:', err);
+      console.error('Error al registrarse:', err);
       setError('Error al registrarse. Intenta más tarde.');
     }
   };
@@ -72,12 +54,10 @@ const RegisterPage = () => {
   return (
     <div className="register-page">
       <div className="register-card">
-        <div>
-          <h1 className="register-title">Crear cuenta</h1>
-          <p className="register-subtitle">
-            Llena tus datos para comprar tus dulces favoritos 🍬
-          </p>
-        </div>
+        <h1 className="register-title">Crear cuenta</h1>
+        <p className="register-subtitle">
+          Regístrate para guardar tus pedidos y acceder al catálogo dulce 🍭
+        </p>
 
         <form className="register-form" onSubmit={handleSubmit}>
           <div className="register-field">
@@ -87,7 +67,7 @@ const RegisterPage = () => {
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              placeholder="Tu nombre completo"
+              required
             />
           </div>
 
@@ -98,7 +78,7 @@ const RegisterPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tucorreo@gmail.com"
+              required
             />
           </div>
 
@@ -109,7 +89,7 @@ const RegisterPage = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              required
             />
           </div>
 
@@ -120,20 +100,17 @@ const RegisterPage = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Escribe la misma contraseña"
+              required
             />
           </div>
 
           {error && <div className="register-error">{error}</div>}
+          {success && <div className="register-success">{success}</div>}
 
           <button type="submit" className="register-submit">
             Registrarme
           </button>
         </form>
-
-        <p className="register-footer-text">
-          ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
-        </p>
       </div>
     </div>
   );

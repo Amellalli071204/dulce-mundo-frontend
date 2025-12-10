@@ -8,12 +8,12 @@ import './LoginPage.css';
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const LoginPage = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,14 +27,14 @@ const LoginPage = () => {
 
       console.log('Login exitoso:', response.data);
 
-      // Guardar usuario y rol en contexto + localStorage
+      // Guardamos sesión en el contexto (aquí se decide si es admin o cliente)
       login(email);
 
-      // Ir directo al catálogo
+      // Redirigir al catálogo
       navigate('/catalogo');
     } catch (err) {
       console.error('Error al iniciar sesión:', err);
-      setError('Error al iniciar sesión. Intenta más tarde.');
+      setError('Error al iniciar sesión. Verifica tus credenciales.');
     }
   };
 
@@ -47,7 +47,34 @@ const LoginPage = () => {
         </p>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          {/* campos ... */}
+          <div className="login-field">
+            <label htmlFor="email">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ejemplo@correo.com"
+              required
+            />
+          </div>
+
+          <div className="login-field">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {error && <div className="login-error">{error}</div>}
+
+          <button type="submit" className="login-submit">
+            Entrar
+          </button>
         </form>
       </div>
     </div>
