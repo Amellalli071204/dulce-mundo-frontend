@@ -1,109 +1,90 @@
-/* Barra rosa */
+/* Barra superior */
 .navbar {
-  background-color: #ff66a3;
-  padding: 0.8rem 1.8rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-/* Contenedor interno */
-.navbar-inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  height: 64px;
+  padding: 0 2.5rem;
+  background: #ff6fae;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(255, 105, 180, 0.35);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
-/* Logo */
+/* Lado izquierdo (logo) */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .navbar-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 800;
   font-size: 1.4rem;
-  color: #ffffff;
+  font-weight: 700;
 }
 
-.navbar-logo-icon {
-  font-size: 1.4rem;
-}
-
-/* Links del centro (Catálogo, Mi bolsa, Panel admin) */
-.navbar-links {
-  display: flex;
-  align-items: center;
-  gap: 1.4rem;
-}
-
-/* Links y botones de la derecha */
-.navbar-actions {
+/* Lado derecho (links) */
+.navbar-right {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* Estilo general de link */
-.nav-link {
-  color: #ffffff;
-  text-decoration: none;
-  font-weight: 600;
+/* Links */
+.navbar-link {
   font-size: 0.95rem;
-  position: relative;
-  padding-bottom: 0.1rem;
-}
-
-/* Panel admin resaltado */
-.nav-link-admin {
-  padding: 0.3rem 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #fff;
+  padding: 0.4rem 0.75rem;
   border-radius: 999px;
-  background-color: #fff;
-  color: #ff4e98;
+  transition: background 0.2s ease, transform 0.08s ease;
 }
 
-/* Subrayado bonito al pasar el mouse */
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -2px;
-  width: 0%;
-  height: 2px;
-  background-color: #ffe9f5;
-  transition: width 0.2s ease;
-}
-
-.nav-link:hover::after {
-  width: 100%;
+.navbar-link:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
 }
 
 /* Botón cerrar sesión */
-.btn-logout {
+.navbar-logout-btn {
   border: none;
-  border-radius: 999px;
-  padding: 0.45rem 1.1rem;
-  background-color: #ffffff;
-  color: #ff4e98;
-  font-weight: 600;
+  outline: none;
   cursor: pointer;
   font-size: 0.9rem;
-  box-shadow: 0 4px 10px rgba(255, 105, 180, 0.35);
-  transition: transform 0.08s ease, box-shadow 0.15s ease;
+  font-weight: 600;
+  padding: 0.45rem 1.2rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #ff4e98;
+  box-shadow: 0 8px 18px rgba(255, 255, 255, 0.4);
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.2s ease;
 }
 
-.btn-logout:hover {
+.navbar-logout-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(255, 105, 180, 0.45);
+  box-shadow: 0 10px 22px rgba(255, 255, 255, 0.55);
+}
+
+.navbar-logout-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 14px rgba(255, 255, 255, 0.35);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .navbar-inner {
-    gap: 0.75rem;
+  .navbar {
+    padding: 0 1rem;
   }
 
-  .navbar-links {
-    display: none; /* si quieres algo más pro, luego hacemos menú hamburguesa */
+  .navbar-right {
+    gap: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .navbar-logo {
+    font-size: 1.2rem;
   }
 }
