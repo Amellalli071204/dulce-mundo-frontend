@@ -1,50 +1,47 @@
 // src/components/ProductCard.js
 
-import React, { useState } from 'react'; // <-- IMPORTAMOS useState
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext'; 
 import './ProductCard.css';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ producto }) => {
+  const navigate = useNavigate();
   const { addProductToCart } = useCart();
-  const price = parseFloat(product.precio) || 0;
-
-  // Estado para controlar la animación del botón
-  const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = () => {
-    // 1. Añadimos al carrito
-    addProductToCart(product);
-    
-    // 2. Activamos el estado visual
-    setIsAdded(true);
+    addProductToCart(producto);
+  };
 
-    // 3. Después de 1.5 segundos, lo regresamos a la normalidad
-    setTimeout(() => {
-      setIsAdded(false);
-    }, 1500);
+  const handleViewDetails = () => {
+    navigate(`/product/${producto.id}`);
   };
 
   return (
     <div className="product-card">
-      <img src={product.imagen_url} alt={product.nombre} className="product-image" />
-      <div className="product-info">
-        <h3 className="product-name">{product.nombre}</h3>
-        <p className="product-price">${price.toFixed(2)}</p>
-        
-        <div className="product-buttons">
-          <Link to={`/product/${product.id}`} className="btn-details">
-            Ver Detalles
-          </Link>
-          
-          {/* BOTÓN CON FEEDBACK VISUAL */}
-          <button 
-            onClick={handleAddToCart} 
-            className={`btn-add-cart ${isAdded ? 'btn-added' : ''}`}
-            disabled={isAdded} // Evita doble clic accidental
+      <img
+        src={producto.imagen_url}
+        alt={producto.nombre}
+        className="product-card-image"
+      />
+
+      <div className="product-card-body">
+        <h3 className="product-card-title">{producto.nombre}</h3>
+        <p className="product-card-price">${parseFloat(producto.precio).toFixed(2)}</p>
+
+        <div className="product-card-actions">
+          <button
+            className="btn-secondary"
+            onClick={handleViewDetails}
           >
-            {isAdded ? '¡Agregado!' : 'Añadir'}
+            Ver Detalles
+          </button>
+
+          <button
+            className="btn-primary"
+            onClick={handleAddToCart}
+          >
+            Añadir
           </button>
         </div>
       </div>
