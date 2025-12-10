@@ -3,60 +3,68 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+
 import './ProductCard.css';
 
 const ProductCard = ({ producto }) => {
-  const navigate = useNavigate();
-  const { addProductToCart } = useCart();
-
+  // Si por algún motivo viene vacío, no rompemos la app
   if (!producto) {
     console.warn('ProductCard se llamó sin "producto"');
     return null;
   }
 
+  const navigate = useNavigate();
+  const { addProductToCart } = useCart();
+
   const handleAddToCart = () => {
-    addProductToCart(producto);
+    // Aseguramos los datos que usamos en el carrito
+    addProductToCart({
+      id: producto.id,
+      nombre: producto.nombre,
+      precio: producto.precio,
+      imagen_url: producto.imagen_url,
+    });
   };
 
   const handleViewDetails = () => {
     navigate(`/product/${producto.id}`);
   };
 
-  const imagen = producto.imagen_url || producto.imagen || '';
-  const nombre = producto.nombre || 'Producto';
-  const precio = parseFloat(producto.precio || 0).toFixed(2);
+  const price = parseFloat(producto.precio || 0).toFixed(2);
 
   return (
-    <div className="product-card">
-      {imagen && (
+    <article className="product-card">
+      <div className="product-image-wrapper">
         <img
-          src={imagen}
-          alt={nombre}
-          className="product-card-image"
+          src={producto.imagen_url}
+          alt={producto.nombre}
+          className="product-image"
         />
-      )}
-
-      <div className="product-card-body">
-        <h3 className="product-card-title">{nombre}</h3>
-        <p className="product-card-price">${precio}</p>
-
-        <div className="product-card-actions">
-          <button
-            className="btn-secondary"
-            onClick={handleViewDetails}
-          >
-            Ver Detalles
-          </button>
-
-          <button
-            className="btn-primary"
-            onClick={handleAddToCart}
-          >
-            Añadir
-          </button>
-        </div>
       </div>
-    </div>
+
+      <div className="product-info">
+        <h3>{producto.nombre}</h3>
+        <p className="product-price">${price}</p>
+      </div>
+
+      <div className="product-actions">
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={handleViewDetails}
+        >
+          Ver Detalles
+        </button>
+
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={handleAddToCart}
+        >
+          Añadir
+        </button>
+      </div>
+    </article>
   );
 };
 

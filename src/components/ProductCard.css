@@ -1,73 +1,105 @@
-/* src/components/ProductCard.css */
-/* ... otros estilos ... */
-
-.product-price {
-  /* ... */
-  /* Cambiamos el color del precio */
-  color: #e84393; /* Un rosa más intenso */
-  margin-bottom: 1rem;
-}
-
-.btn-details {
-  /* ... */
-  /* Cambiamos el color del botón */
-  background-color: #00d2d3; /* Un turquesa brillante */
-  /* ... */
-}
-
-/* Añadir al final de src/components/ProductCard.css */
-
-.product-buttons {
+/* ===== Tarjeta de producto ===== */
+.product-card {
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.06);
   display: flex;
-  justify-content: space-between;
-  gap: 0.5rem; /* Espacio entre botones */
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.btn-details,
-.btn-add-cart {
-  padding: 0.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  text-align: center;
-  font-size: 0.9rem;
-  width: 100%; /* Hacemos que ambos ocupen espacio */
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
 }
 
-.btn-details {
-  background-color: #00d2d3; /* Turquesa */
-  color: white;
+/* ===== Imagen ===== */
+.product-image-wrapper {
+  height: 260px;
+  overflow: hidden;
 }
-
-.btn-add-cart {
-  background-color: #ff7eb9; /* Rosa chicle */
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.btn-add-cart:hover {
-  background-color: #e84393;
-}
-
-/* src/components/ProductCard.css */
 
 .product-image {
-  width: 100%;        /* Que ocupe todo el ancho de la tarjeta */
-  height: 200px;      /* <--- ¡ESTO ES CLAVE! Altura fija para todas */
-  object-fit: cover;  /* <--- LA MAGIA: Recorta la imagen para que quepa sin deformarse */
-  object-position: center; /* Centra la imagen */
-  border-bottom: 1px solid #eee; /* Un borde sutil abajo */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
-/* src/components/ProductCard.css */
 
-/* ... tus estilos anteriores ... */
+.product-card:hover .product-image {
+  transform: scale(1.06);
+}
 
-/* Estilo cuando el producto se agregó */
-.btn-added {
-  background-color: #2ecc71 !important; /* Verde éxito */
-  color: white;
-  cursor: default; /* El cursor no cambia */
-  transform: scale(1.05); /* Un pequeño efecto de "pop" */
-  transition: all 0.3s ease;
+/* ===== Texto ===== */
+.product-info {
+  padding: 1rem 1.25rem 0.3rem;
+}
+
+.product-info h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.product-price {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ff4e98;
+}
+
+/* ===== Botones ===== */
+.product-actions {
+  padding: 0.9rem 1.25rem 1.1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 0.55rem 0.3rem;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.2s ease;
+}
+
+/* Botón rosa "Añadir" */
+.btn-primary {
+  background: linear-gradient(135deg, #ff6aa2, #ff4e98);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(255, 105, 180, 0.45);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(255, 105, 180, 0.55);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 14px rgba(255, 105, 180, 0.4);
+}
+
+/* Botón celeste "Ver Detalles" */
+.btn-secondary {
+  background: #e8f9ff;
+  color: #0088c7;
+  box-shadow: 0 6px 16px rgba(0, 136, 199, 0.25);
+}
+
+.btn-secondary:hover {
+  background: #d5f2ff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 136, 199, 0.35);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 14px rgba(0, 136, 199, 0.25);
 }
