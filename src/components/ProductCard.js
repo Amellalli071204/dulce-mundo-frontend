@@ -7,14 +7,15 @@ import { useCart } from '../context/CartContext';
 import './ProductCard.css';
 
 const ProductCard = ({ producto }) => {
-  // Si por algún motivo viene vacío, no rompemos la app
+  // 🔹 REGLA DE HOOKS: SIEMPRE AL INICIO DEL COMPONENTE
+  const navigate = useNavigate();
+  const { addProductToCart } = useCart();
+
+  // 🔹 SI NO HAY PRODUCTO, NO RENDERIZAMOS NADA
   if (!producto) {
     console.warn('ProductCard se llamó sin "producto"');
     return null;
   }
-
-  const navigate = useNavigate();
-  const { addProductToCart } = useCart();
 
   const handleAddToCart = () => {
     // Aseguramos los datos que usamos en el carrito
