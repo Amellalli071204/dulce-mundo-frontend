@@ -3,6 +3,7 @@
 import React, { useState } from 'react'; // <-- IMPORTAMOS useState
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext'; 
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {

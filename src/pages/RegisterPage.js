@@ -1,51 +1,63 @@
 // src/pages/RegisterPage.js
+
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 import './RegisterPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
+
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [error, setError] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrorMessage('');
+    setSuccessMessage('');
 
-    if (password !== passwordConfirm) {
-      setError('Las contraseñas no coinciden.');
+    if (!nombre || !email || !password || !confirmPassword) {
+      setErrorMessage('Por favor completa todos los campos obligatorios.');
       return;
     }
 
-    setLoading(true);
+    if (password !== confirmPassword) {
+      setErrorMessage('Las contraseñas no coinciden.');
+      return;
+    }
 
     try {
+      setLoading(true);
+
       await axios.post(`${API_URL}/api/register`, {
         nombre,
         email,
         password,
+        telefono, // 👈 se envía al backend
       });
 
-      const cleanEmail = (email || '').trim().toLowerCase();
-      const isAdmin = cleanEmail === 'admin@gmail.com';
+      setSuccessMessage('Cuenta creada correctamente 🎉. Ahora puedes iniciar sesión.');
 
-      localStorage.setItem('userEmail', cleanEmail);
-      localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-
-      navigate('/catalogo', { replace: true });
-    } catch (err) {
-      console.error('Error en registro:', err);
-      setError(
-        err?.response?.data?.message ||
-          'Error al registrarse. Intenta más tarde.'
-      );
+      // Pequeña pausa para que se vea el mensaje y luego ir al login
+      setTimeout(() => {
+        navigate('/login');
+      }, 1200);
+    } catch (error) {
+      console.error('Error al registrarse:', error);
+      if (error.response?.data?.message) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage('Error al registrarse. Intenta más tarde.');
+      }
     } finally {
       setLoading(false);
     }
@@ -56,7 +68,7 @@ const RegisterPage = () => {
       <div className="register-card">
         <h1 className="register-title">Crear cuenta</h1>
         <p className="register-subtitle">
-          Regístrate para guardar tu bolsa y hacer pedidos más rápido.
+          Regístrate para empezar a llenar tu bolsa de dulces 🍬
         </p>
 
         <form className="register-form" onSubmit={handleSubmit}>
@@ -66,7 +78,7 @@ const RegisterPage = () => {
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              required
+              placeholder="Tu nombre"
             />
           </div>
 
@@ -76,7 +88,17 @@ const RegisterPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+              placeholder="ejemplo@correo.com"
+            />
+          </div>
+
+          <div className="register-field">
+            <label>Teléfono (opcional)</label>
+            <input
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder="Ej. 555-123-4567"
             />
           </div>
 
@@ -86,7 +108,7 @@ const RegisterPage = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              placeholder="Mínimo 6 caracteres"
             />
           </div>
 
@@ -94,21 +116,36 @@ const RegisterPage = () => {
             <label>Confirmar contraseña</label>
             <input
               type="password"
-              value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
-              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repite tu contraseña"
             />
           </div>
 
-          {error && <div className="register-error">{error}</div>}
+          {errorMessage && (
+            <div className="register-error">
+              {errorMessage}
+            </div>
+          )}
 
-          <button className="register-submit" type="submit" disabled={loading}>
+          {successMessage && (
+            <div className="register-success">
+              {successMessage}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="register-submit"
+            disabled={loading}
+          >
             {loading ? 'Creando cuenta...' : 'Registrarme'}
           </button>
         </form>
 
         <p className="register-footer-text">
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+          ¿Ya tienes cuenta?{' '}
+          <Link to="/login">Inicia sesión aquí</Link>
         </p>
       </div>
     </div>
