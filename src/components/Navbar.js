@@ -1,56 +1,41 @@
 // src/components/Navbar.js
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
+  const { isAuthenticated, isAdmin, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [userEmail, setUserEmail] = useState(null);
-
-  useEffect(() => {
-    const email = localStorage.getItem('userEmail');
-    setUserEmail(email);
-  }, [location.pathname]);
+  // Ocultar links principales en /login y /register
+  const hideMainLinks =
+    location.pathname === '/login' || location.pathname === '/register';
 
   const handleLogout = () => {
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userRole');
+    logout();
     navigate('/login');
   };
 
-  // Normalizamos el path para evitar detalles de mayúsculas / slashes
-  const path = location.pathname.toLowerCase();
-  const isAuthPage =
-    path.startsWith('/login') || path.startsWith('/register');
-
-  // 👀 Solo para depurar: mira esto en la consola del navegador
-  console.log('NAVBAR -> path:', path, 'isAuthPage:', isAuthPage, 'userEmail:', userEmail);
-
   return (
-    <nav className="navbar">
-      <div className="navbar-left">
-        <Link to={userEmail ? '/catalogo' : '/login'} className="navbar-logo">
-          DulceMundo <span role="img" aria-label="dulce">🍭</span>
-        </Link>
-      </div>
+    <header className="navbar">
+      <div className="navbar-inner">
+        {/* Logo */}
+        <div
+          className="navbar-logo"
+          onClick={() => navigate('/catalogo')}
+          style={{ cursor: 'pointer' }}
+        >
+          <span>DulceMundo</span>
+          <span className="navbar-logo-icon" role="img" aria-label="dulces">
+            🍭
+          </span>
+        </div>
 
-      <div className="navbar-right">
-        {/* 🔒 PÁGINAS DE LOGIN / REGISTER:
-            aquí NO mostramos Catálogo, Mi bolsa ni Cerrar sesión */}
-        {isAuthPage && !userEmail && (
-          <Link
-            to={path.startsWith('/login') ? '/register' : '/login'}
-            className="nav-link"
-          >
-            {path.startsWith('/login') ? 'Registrarse' : 'Iniciar sesión'}
-          </Link>
-        )}
-
-        {/* 🧁 Usuario logueado y NO estamos en login/register */}
-        {!isAuthPage && userEmail && (
-          <>
+        {/* Links principales (solo si está logueado y no estamos en login/register) */}
+        {!hideMainLinks && isAuthenticated && (
+          <nav className="navbar-links">
             <Link to="/catalogo" className="nav-link">
               Catálogo
             </Link>
@@ -58,26 +43,40 @@ const Navbar = () => {
               Mi bolsa
             </Link>
 
-            <button className="nav-button-logout" onClick={handleLogout}>
-              Cerrar sesión
-            </button>
-          </>
+            {/* Botón de panel admin sólo si es admin */}
+            {isAdmin && (
+              <Link to="/admin" className="nav-link nav-link-admin">
+                Panel admin
+              </Link>
+            )}
+          </nav>
         )}
 
-        {/* ⛔ Usuario NO logueado y NO estamos en login/register
-            (por si alguien entra directo a otra URL) */}
-        {!isAuthPage && !userEmail && (
-          <>
-            <Link to="/login" className="nav-link">
-              Iniciar sesión
-            </Link>
-            <Link to="/register" className="nav-link">
-              Registrarse
-            </Link>
-          </>
-        )}
+        {/* Acciones (login/registro o cerrar sesión) */}
+        <div className="navbar-actions">
+          {!isAuthenticated && (
+            <>
+              {location.pathname !== '/login' && (
+                <Link to="/login" className="nav-link">
+                  Iniciar sesión
+                </Link>
+              )}
+              {location.pathname !== '/register' && (
+                <Link to="/register" className="nav-link">
+                  Registrarse
+                </Link>
+              )}
+            </>
+          )}
+
+          {isAuthenticated && (
+            <button className="btn-logout" onClick={handleLogout}>
+              Cerrar sesión
+            </button>
+          )}
+        </div>
       </div>
-    </nav>
+    </header>
   );
 };
 

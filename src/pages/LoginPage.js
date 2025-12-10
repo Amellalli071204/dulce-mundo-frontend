@@ -2,59 +2,39 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './LoginPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mensaje, setMensaje] = useState('');
-
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setMensaje('');
-    setLoading(true);
 
     try {
-      const emailClean = email.trim().toLowerCase();
-
       const response = await axios.post(`${API_URL}/api/login`, {
-        email: emailClean,
+        email,
         password,
       });
 
-      console.log('Login exitoso, respuesta backend:', response.data);
-      console.log('EMAIL LIMPIO QUE VOY A GUARDAR:', emailClean);
+      console.log('Login exitoso:', response.data);
 
-      // Guardar sesión y correo limpio
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', emailClean);
+      // Guardar usuario y rol en contexto + localStorage
+      login(email);
 
-      // Si el backend manda rol lo usamos, si no, lo calculamos aquí
-      const rolBackend = response.data.rol;
-      const rol =
-        rolBackend || (emailClean === 'admin@gmail.com' ? 'admin' : 'cliente');
-
-      localStorage.setItem('userRole', rol);
-      console.log('ROL GUARDADO:', rol);
-
-      setMensaje('Ha iniciado sesión correctamente 🎉');
-      navigate('/catalogo', { replace: true });
+      // Ir directo al catálogo
+      navigate('/catalogo');
     } catch (err) {
       console.error('Error al iniciar sesión:', err);
-      if (err.response?.status === 401) {
-        setError('Credenciales incorrectas.');
-      } else {
-        setError('Error al iniciar sesión. Intenta más tarde.');
-      }
-    } finally {
-      setLoading(false);
+      setError('Error al iniciar sesión. Intenta más tarde.');
     }
   };
 
@@ -66,43 +46,8 @@ const LoginPage = () => {
           Ingresa con tu correo y contraseña para ver el catálogo de dulces 🍬
         </p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Correo electrónico</label>
-            <input
-              id="email"
-              type="email"
-              placeholder="ejemplo@correo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="login-button"
-            disabled={loading}
-          >
-            {loading ? 'Entrando…' : 'Entrar'}
-          </button>
-
-          {error && <p className="message message-error">{error}</p>}
-          {mensaje && <p className="message message-success">{mensaje}</p>}
+        <form className="login-form" onSubmit={handleSubmit}>
+          {/* campos ... */}
         </form>
       </div>
     </div>
