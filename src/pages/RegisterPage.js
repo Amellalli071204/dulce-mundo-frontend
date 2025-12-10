@@ -47,7 +47,7 @@ const RegisterPage = () => {
 
       setSuccessMessage('Cuenta creada correctamente 🎉. Ahora puedes iniciar sesión.');
 
-      // Pequeña pausa para que se vea el mensaje y luego ir al login
+      // Pequeña pausa para que el usuario vea el mensaje
       setTimeout(() => {
         navigate('/login');
       }, 1200);
@@ -68,10 +68,11 @@ const RegisterPage = () => {
       <div className="register-card">
         <h1 className="register-title">Crear cuenta</h1>
         <p className="register-subtitle">
-          Regístrate para empezar a llenar tu bolsa de dulces 🍬
+          Regístrate para guardar tu bolsa y hacer pedidos más rápido.
         </p>
 
         <form className="register-form" onSubmit={handleSubmit}>
+          {/* NOMBRE */}
           <div className="register-field">
             <label>Nombre</label>
             <input
@@ -82,6 +83,7 @@ const RegisterPage = () => {
             />
           </div>
 
+          {/* EMAIL */}
           <div className="register-field">
             <label>Correo electrónico</label>
             <input
@@ -92,6 +94,7 @@ const RegisterPage = () => {
             />
           </div>
 
+          {/* TELÉFONO */}
           <div className="register-field">
             <label>Teléfono (opcional)</label>
             <input
@@ -102,6 +105,7 @@ const RegisterPage = () => {
             />
           </div>
 
+          {/* PASSWORD */}
           <div className="register-field">
             <label>Contraseña</label>
             <input
@@ -112,6 +116,7 @@ const RegisterPage = () => {
             />
           </div>
 
+          {/* CONFIRM PASSWORD */}
           <div className="register-field">
             <label>Confirmar contraseña</label>
             <input
@@ -122,18 +127,11 @@ const RegisterPage = () => {
             />
           </div>
 
-          {errorMessage && (
-            <div className="register-error">
-              {errorMessage}
-            </div>
-          )}
+          {/* MENSAJES */}
+          {errorMessage && <div className="register-error">{errorMessage}</div>}
+          {successMessage && <div className="register-success">{successMessage}</div>}
 
-          {successMessage && (
-            <div className="register-success">
-              {successMessage}
-            </div>
-          )}
-
+          {/* BOTÓN */}
           <button
             type="submit"
             className="register-submit"
