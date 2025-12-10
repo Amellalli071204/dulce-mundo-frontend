@@ -1,111 +1,79 @@
 // src/components/Navbar.js
-
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Leer info de sesión desde localStorage
-  const readAuthFromStorage = () => {
-    const logged = localStorage.getItem('isLoggedIn') === 'true';
-    const email = localStorage.getItem('userEmail');
-    const emailClean = email ? email.trim().toLowerCase() : '';
-
-    setIsLoggedIn(logged);
-    setIsAdmin(emailClean === 'admin@gmail.com');
-  };
+  // Solo para saber si hay alguien logeado
+  const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
-    // Al montar el navbar
-    readAuthFromStorage();
-
-    // Si en tu Login / Register disparas este evento, se actualizará:
-    const handler = () => readAuthFromStorage();
-    window.addEventListener('auth-changed', handler);
-
-    return () => window.removeEventListener('auth-changed', handler);
-  }, []);
+    const email = localStorage.getItem('userEmail');
+    setUserEmail(email);
+  }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userEmail');
-    localStorage.removeItem('isAdmin');
-    setIsLoggedIn(false);
-    setIsAdmin(false);
+    localStorage.removeItem('userRole');
     navigate('/login');
   };
 
+  // ¿Estoy en /login o /register?
+  const isAuthPage =
+    location.pathname === '/login' || location.pathname === '/register';
+
   return (
     <nav className="navbar">
-      <div className="navbar-left" onClick={() => isLoggedIn && navigate('/catalogo')}>
-        <span className="navbar-logo-text">DulceMundo</span>
-        <span className="navbar-logo-emoji">🍭</span>
+      <div className="navbar-left">
+        {/* Logo (puedes cambiar el link si quieres que vaya a / en lugar de /catalogo) */}
+        <Link to="/catalogo" className="navbar-logo">
+          DulceMundo <span role="img" aria-label="dulce">🍭</span>
+        </Link>
       </div>
 
       <div className="navbar-right">
-        {/* SOLO mostrar Catálogo y Mi Bolsa si el usuario está logueado */}
-        {isLoggedIn && (
+        {/* ---- LINKS PRINCIPALES: SOLO después de iniciar sesión Y NO en login/register ---- */}
+        {!isAuthPage && userEmail && (
           <>
-            <button
-              className="navbar-link"
-              type="button"
-              onClick={() => navigate('/catalogo')}
-            >
+            <Link to="/catalogo" className="nav-link">
               Catálogo
-            </button>
-
-            <button
-              className="navbar-link"
-              type="button"
-              onClick={() => navigate('/cart')}
-            >
-              🛍 Mi bolsa
-            </button>
-
-            {/* Si quieres un botón para admin, por ejemplo */}
-            {isAdmin && (
-              <button
-                className="navbar-link"
-                type="button"
-                onClick={() => navigate('/admin')}
-              >
-                Panel admin
-              </button>
-            )}
+            </Link>
+            <Link to="/cart" className="nav-link">
+              Mi bolsa
+            </Link>
           </>
         )}
 
-        {/* Zona de autenticación */}
-        {isLoggedIn ? (
-          <button
-            className="navbar-btn navbar-btn-primary"
-            type="button"
-            onClick={handleLogout}
+        {/* ---- LOGIN / REGISTER cuando NO está logeado y NO está en esas pantallas ---- */}
+        {!userEmail && !isAuthPage && (
+          <>
+            <Link to="/login" className="nav-link">
+              Iniciar sesión
+            </Link>
+            <Link to="/register" className="nav-link">
+              Registrarse
+            </Link>
+          </>
+        )}
+
+        {/* ---- En las pantallas de login/registro sólo mostramos un enlace de cambio ---- */}
+        {!userEmail && isAuthPage && (
+          <Link
+            to={location.pathname === '/login' ? '/register' : '/login'}
+            className="nav-link"
           >
+            {location.pathname === '/login' ? 'Registrarse' : 'Iniciar sesión'}
+          </Link>
+        )}
+
+        {/* ---- BOTÓN CERRAR SESIÓN: sólo si está logeado y NO está en login/register ---- */}
+        {userEmail && !isAuthPage && (
+          <button className="nav-button-logout" onClick={handleLogout}>
             Cerrar sesión
           </button>
-        ) : (
-          <>
-            <button
-              className="navbar-link"
-              type="button"
-              onClick={() => navigate('/login')}
-            >
-              Iniciar sesión
-            </button>
-            <button
-              className="navbar-btn navbar-btn-primary"
-              type="button"
-              onClick={() => navigate('/register')}
-            >
-              Registrarse
-            </button>
-          </>
         )}
       </div>
     </nav>
