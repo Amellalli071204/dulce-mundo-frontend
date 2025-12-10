@@ -9,7 +9,6 @@ import { useAuth } from '../context/AuthContext';
 
 import './HomePage.css';
 
-// Usa la misma URL que en Login / Cart
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const HomePage = () => {
@@ -17,16 +16,23 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const { isAdmin } = useAuth();
+  // ⚠️ IMPORTANTE: NADA de "const { isAdmin } = useAuth();"
+  // Usamos una lectura segura:
+  let isAdmin = false;
+  try {
+    const auth = useAuth();
+    isAdmin = auth?.isAdmin || false;
+  } catch (e) {
+    console.warn('useAuth no disponible en HomePage (probablemente fuera del AuthProvider)', e);
+  }
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/productos`);
-
-        // Nos aseguramos de que siempre sea un array
-        const data = Array.isArray(response.data) ? response.data : [];
+        const resp = await axios.get(`${API_URL}/api/productos`);
+        const data = Array.isArray(resp.data) ? resp.data : [];
         setProductos(data);
       } catch (err) {
         console.error('Error al cargar productos:', err);
@@ -71,7 +77,7 @@ const HomePage = () => {
         <div className="catalog-header">
           <h1>Nuestro Catálogo de Dulces</h1>
 
-          {/* Botón solo para admin */}
+          {/* Botón solo para admin, pero sin romper si no hay contexto */}
           {isAdmin && (
             <button className="btn-admin" onClick={handleGoAdmin}>
               Ver pedidos en efectivo
@@ -81,7 +87,6 @@ const HomePage = () => {
 
         <div className="product-grid">
           {productos.map((prod) => (
-            // 👇 AQUÍ está la parte importante
             <ProductCard key={prod.id} producto={prod} />
           ))}
         </div>
