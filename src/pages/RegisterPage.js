@@ -41,8 +41,8 @@ const RegisterPage = () => {
       await axios.post(`${API_URL}/api/register`, {
         nombre,
         email,
-        password,
-        telefono, // 👈 se envía al backend
+        telefono,
+        password, // 👈 se envía al backend
       });
 
       setSuccessMessage('Cuenta creada correctamente 🎉. Ahora puedes iniciar sesión.');
@@ -96,7 +96,7 @@ const RegisterPage = () => {
 
           {/* TELÉFONO */}
           <div className="register-field">
-            <label>Teléfono (opcional)</label>
+            <label>Teléfono</label>
             <input
               type="tel"
               value={telefono}

@@ -1,148 +1,144 @@
 // src/pages/AdminPage.js
-
-import React, { useState, useEffect } from 'react'; // <--- Aseguramos que useState esté importado
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './AdminPage.css';
 
-// URL DE LA API EN LA NUBE (PEGA AQUÍ LA URL REAL DE RAILWAY)
-const API_URL = 'https://dulce-mundo-backend-production.up.railway.app'; 
+const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const AdminPage = () => {
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showDetailsId, setShowDetailsId] = useState(null); // Estado para abrir/cerrar el detalle
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    // --- FUNCIÓN FALTANTE ---
-    const handleToggleDetails = (orderId) => {
-        // Lógica para abrir/cerrar el detalle
-        if (showDetailsId === orderId) {
-            setShowDetailsId(null);
-        } else {
-            // Carga los detalles si aún no están cargados
-            if (!orders.find(o => o.id === orderId)?.items) {
-                fetchOrderDetails(orderId);
-            }
-            setShowDetailsId(orderId);
-        }
-    };
-    // ------------------------
-    
-    const fetchOrders = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/api/admin/orders`); 
-            setOrders(response.data);
-        } catch (error) {
-           console.error('Error al cargar órdenes:', error);
-           alert('Error al cargar órdenes. Verifica el servidor backend.');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/admin/cash-orders`);
+      setOrders(res.data || []);
+    } catch (error) {
+      console.error('Error al cargar órdenes en efectivo:', error);
+      alert('Error al cargar las órdenes en efectivo.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchOrderDetails = async (orderId) => {
-        try {
-            const response = await axios.get(`${API_URL}/api/admin/order-items/${orderId}`); 
-            setOrders(prevOrders => prevOrders.map(order => 
-                order.id === orderId ? { ...order, items: response.data } : order
-            ));
-        } catch (error) {
-            console.error('Error al cargar detalles de la orden:', orderId, error);
-            alert('Error al cargar detalles de la orden.');
-        }
-    };
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-    const handleUpdateStatus = async (orderId, currentStatus, newStatus) => {
-        if (!window.confirm(`¿Seguro que deseas cambiar el pedido #${orderId} de ${currentStatus} a ${newStatus}?`)) return;
+  const handleConfirm = async (orderId) => {
+    if (!window.confirm('¿Confirmar que ya se cobró este pedido en efectivo?')) {
+      return;
+    }
 
-        try {
-            await axios.post(`${API_URL}/api/orders/update-status`, { 
-                orderId, newStatus
-            });
-            fetchOrders(); 
-        } catch (error) {
-            console.error('Error al actualizar:', error);
-            alert('Error al actualizar el estado del pedido.');
-        }
-    };
-    
-    useEffect(() => {
-        fetchOrders();
-    }, []);
+    try {
+      await axios.post(
+        `${API_URL}/api/admin/orders/${orderId}/confirm-cash`
+      );
+      alert('Cobro confirmado ✅');
+      fetchOrders();
+    } catch (error) {
+      console.error('Error al confirmar cobro:', error);
+      alert('Error al confirmar el cobro.');
+    }
+  };
 
-    if (loading) return <div className="admin-container">Cargando Pedidos...</div>;
+  const handleCancel = async (orderId) => {
+    if (!window.confirm('¿Cancelar este pedido?')) {
+      return;
+    }
 
-    return (
-        <div className="admin-container">
-            <h1>Panel de Administración ⚙️</h1>
-            <h2 className="subtitle">Gestión de Órdenes ({orders.length})</h2>
+    try {
+      await axios.post(
+        `${API_URL}/api/admin/orders/${orderId}/cancel`
+      );
+      alert('Pedido cancelado ❌');
+      fetchOrders();
+    } catch (error) {
+      console.error('Error al cancelar pedido:', error);
+      alert('Error al cancelar el pedido.');
+    }
+  };
 
-            <div className="orders-list">
-                {orders.length === 0 ? (
-                    <p>No hay pedidos en el sistema.</p>
-                ) : (
-                    orders.map((order) => (
-                        <div key={order.id} className={`order-card status-${order.estado.toLowerCase().replace('_', '-')}`}>
-                            
-                            <div className="order-header" onClick={() => handleToggleDetails(order.id)}>
-                                <span className="order-id">Pedido **#{order.id}**</span>
-                                <span>Total: **${parseFloat(order.total).toFixed(2)}**</span>
-                                <span className="status-badge status-badge-current">{order.estado}</span>
-                                <span className="toggle-icon">{showDetailsId === order.id ? '▲' : '▼'}</span>
-                            </div>
+  return (
+    <div className="admin-page">
+      <h1 className="admin-title">Panel de Administración</h1>
+      <h2 className="admin-subtitle">
+        Gestión de Órdenes ({orders.length})
+      </h2>
 
-                            {showDetailsId === order.id && (
-                                <div className="order-details-expanded">
-                                    <h3>Ítems de la Orden:</h3>
-                                    {order.items ? (
-                                        <ul className="item-list">
-                                            {order.items.map((item, index) => (
-                                                <li key={index}>
-                                                    {item.product_name} ({item.quantity} und.) - ${item.price * item.quantity}
-                                                </li>
-                                            ))}
-                                            <li className="total-item">TOTAL: ${parseFloat(order.total).toFixed(2)}</li>
-                                        </ul>
-                                    ) : (
-                                        <p>Cargando ítems...</p>
-                                    )}
+      {loading && <p>Cargando órdenes...</p>}
 
-                                    <div className="admin-actions">
-                                        {order.estado === 'CONTRA_ENTREGA' && (
-                                            <button 
-                                                className="btn-action btn-confirm" 
-                                                onClick={() => handleUpdateStatus(order.id, order.estado, 'PAGADA')}
-                                            >
-                                                ✅ Confirmar Cobro (Efectivo)
-                                            </button>
-                                        )}
-                                        
-                                        {order.estado === 'PAGADA' && (
-                                            <button 
-                                                className="btn-action btn-ship"
-                                                onClick={() => handleUpdateStatus(order.id, order.estado, 'ENVIADA')}
-                                            >
-                                                📦 Marcar como Enviado
-                                            </button>
-                                        )}
+      {!loading && orders.length === 0 && (
+        <p>No hay órdenes en efectivo por ahora.</p>
+      )}
 
-                                        {order.estado !== 'CANCELADA' && order.estado !== 'ENTREGADA' && (
-                                            <button 
-                                                className="btn-action btn-cancel"
-                                                onClick={() => handleUpdateStatus(order.id, order.estado, 'CANCELADA')}
-                                            >
-                                                ❌ Cancelar
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                        </div>
-                    ))
-                )}
+      <div className="orders-list">
+        {orders.map((order) => (
+          <div key={order.id} className="order-card">
+            <div className="order-header">
+              <h3>Pedido #{order.id}</h3>
+              <p>
+                <strong>Total:</strong> ${order.total.toFixed(2)}
+              </p>
+              <p>
+                <strong>Estado:</strong> {order.estado}
+              </p>
             </div>
-        </div>
-    );
+
+            {/* 👇 Info del cliente */}
+            <div className="order-client">
+              <p>
+                <strong>Cliente:</strong>{' '}
+                {order.clienteNombre || 'Desconocido'}
+              </p>
+              <p>
+                <strong>Teléfono:</strong>{' '}
+                {order.clienteTelefono || 'No proporcionado'}
+              </p>
+              <p>
+                <strong>Correo:</strong>{' '}
+                {order.clienteEmail || 'Sin correo'}
+              </p>
+            </div>
+
+            <hr />
+
+            {/* Ítems de la orden */}
+            <div className="order-items">
+              <h4>Ítems de la Orden:</h4>
+              <ul>
+                {order.items.map((item, index) => (
+                  <li key={index}>
+                    {item.nombre} ({item.cantidad} und.) - $
+                    {(item.precioUnitario * item.cantidad).toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+              <p className="order-total-text">
+                TOTAL: ${order.total.toFixed(2)}
+              </p>
+            </div>
+
+            <div className="order-actions">
+              <button
+                className="btn-confirm"
+                onClick={() => handleConfirm(order.id)}
+              >
+                ✅ Confirmar Cobro (Efectivo)
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => handleCancel(order.id)}
+              >
+                ❌ Cancelar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default AdminPage;
