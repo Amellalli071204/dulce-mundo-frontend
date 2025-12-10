@@ -9,6 +9,12 @@ const ProductCard = ({ producto }) => {
   const navigate = useNavigate();
   const { addProductToCart } = useCart();
 
+  // 🚨 Defensa: si no hay producto, no renderizamos nada
+  if (!producto) {
+    console.warn('ProductCard se llamó sin "producto"');
+    return null;
+  }
+
   const handleAddToCart = () => {
     addProductToCart(producto);
   };
@@ -17,17 +23,24 @@ const ProductCard = ({ producto }) => {
     navigate(`/product/${producto.id}`);
   };
 
+  // Por si algún campo viene null/undefined
+  const imagen = producto.imagen_url || producto.imagen || '';
+  const nombre = producto.nombre || 'Producto';
+  const precio = parseFloat(producto.precio || 0).toFixed(2);
+
   return (
     <div className="product-card">
-      <img
-        src={producto.imagen_url}
-        alt={producto.nombre}
-        className="product-card-image"
-      />
+      {imagen && (
+        <img
+          src={imagen}
+          alt={nombre}
+          className="product-card-image"
+        />
+      )}
 
       <div className="product-card-body">
-        <h3 className="product-card-title">{producto.nombre}</h3>
-        <p className="product-card-price">${parseFloat(producto.precio).toFixed(2)}</p>
+        <h3 className="product-card-title">{nombre}</h3>
+        <p className="product-card-price">${precio}</p>
 
         <div className="product-card-actions">
           <button
