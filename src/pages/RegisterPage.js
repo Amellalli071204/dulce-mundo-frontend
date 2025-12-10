@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './registerpage.css'; // usa el nombre que ya tienes de tu CSS
+import './RegisterPage.css'; // usa el nombre que ya tienes de tu CSS
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
