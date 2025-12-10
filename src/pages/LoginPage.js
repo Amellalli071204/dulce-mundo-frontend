@@ -1,8 +1,7 @@
 // src/pages/LoginPage.js
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import './LoginPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
@@ -11,30 +10,35 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/api/login`, {
+      await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
 
-      console.log('Login exitoso:', response.data);
+      const cleanEmail = (email || '').trim().toLowerCase();
+      const isAdmin = cleanEmail === 'admin@gmail.com';
 
-      // Guardamos sesión en el contexto (aquí se decide si es admin o cliente)
-      login(email);
+      localStorage.setItem('userEmail', cleanEmail);
+      localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
 
-      // Redirigir al catálogo
-      navigate('/catalogo');
+      navigate('/catalogo', { replace: true });
     } catch (err) {
-      console.error('Error al iniciar sesión:', err);
-      setError('Error al iniciar sesión. Verifica tus credenciales.');
+      console.error('Error en login:', err);
+      setError(
+        err?.response?.data?.message ||
+          'Error al iniciar sesión. Revisa tus datos e inténtalo de nuevo.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,22 +52,21 @@ const LoginPage = () => {
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="login-field">
-            <label htmlFor="email">Correo electrónico</label>
+            <label>Correo electrónico</label>
             <input
-              id="email"
               type="email"
+              placeholder="ejemplo@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ejemplo@correo.com"
               required
             />
           </div>
 
           <div className="login-field">
-            <label htmlFor="password">Contraseña</label>
+            <label>Contraseña</label>
             <input
-              id="password"
               type="password"
+              placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -72,10 +75,14 @@ const LoginPage = () => {
 
           {error && <div className="login-error">{error}</div>}
 
-          <button type="submit" className="login-submit">
-            Entrar
+          <button className="login-submit" type="submit" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <p className="login-footer-text">
+          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+        </p>
       </div>
     </div>
   );

@@ -1,8 +1,7 @@
 // src/pages/RegisterPage.js
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import './RegisterPage.css';
 
 const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
@@ -11,43 +10,44 @@ const RegisterPage = () => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
-    if (password !== confirmPassword) {
+    if (password !== passwordConfirm) {
       setError('Las contraseñas no coinciden.');
       return;
     }
 
+    setLoading(true);
+
     try {
-      const response = await axios.post(`${API_URL}/api/register`, {
+      await axios.post(`${API_URL}/api/register`, {
         nombre,
         email,
         password,
       });
 
-      console.log('Registro exitoso:', response.data);
-      setSuccess('Cuenta creada correctamente. Redirigiendo...');
+      const cleanEmail = (email || '').trim().toLowerCase();
+      const isAdmin = cleanEmail === 'admin@gmail.com';
 
-      // Guardar sesión automáticamente
-      login(email);
+      localStorage.setItem('userEmail', cleanEmail);
+      localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
 
-      // Ir al catálogo después de un pequeño delay
-      setTimeout(() => {
-        navigate('/catalogo');
-      }, 800);
+      navigate('/catalogo', { replace: true });
     } catch (err) {
-      console.error('Error al registrarse:', err);
-      setError('Error al registrarse. Intenta más tarde.');
+      console.error('Error en registro:', err);
+      setError(
+        err?.response?.data?.message ||
+          'Error al registrarse. Intenta más tarde.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,14 +56,13 @@ const RegisterPage = () => {
       <div className="register-card">
         <h1 className="register-title">Crear cuenta</h1>
         <p className="register-subtitle">
-          Regístrate para guardar tus pedidos y acceder al catálogo dulce 🍭
+          Regístrate para guardar tu bolsa y hacer pedidos más rápido.
         </p>
 
         <form className="register-form" onSubmit={handleSubmit}>
           <div className="register-field">
-            <label htmlFor="nombre">Nombre</label>
+            <label>Nombre</label>
             <input
-              id="nombre"
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
@@ -72,9 +71,8 @@ const RegisterPage = () => {
           </div>
 
           <div className="register-field">
-            <label htmlFor="email">Correo electrónico</label>
+            <label>Correo electrónico</label>
             <input
-              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -83,9 +81,8 @@ const RegisterPage = () => {
           </div>
 
           <div className="register-field">
-            <label htmlFor="password">Contraseña</label>
+            <label>Contraseña</label>
             <input
-              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -94,23 +91,25 @@ const RegisterPage = () => {
           </div>
 
           <div className="register-field">
-            <label htmlFor="confirmPassword">Confirmar contraseña</label>
+            <label>Confirmar contraseña</label>
             <input
-              id="confirmPassword"
               type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
               required
             />
           </div>
 
           {error && <div className="register-error">{error}</div>}
-          {success && <div className="register-success">{success}</div>}
 
-          <button type="submit" className="register-submit">
-            Registrarme
+          <button className="register-submit" type="submit" disabled={loading}>
+            {loading ? 'Creando cuenta...' : 'Registrarme'}
           </button>
         </form>
+
+        <p className="register-footer-text">
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+        </p>
       </div>
     </div>
   );
