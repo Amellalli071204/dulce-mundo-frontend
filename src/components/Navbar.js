@@ -1,82 +1,76 @@
 // src/components/Navbar.js
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
-  const { isAuthenticated, isAdmin, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Ocultar links principales en /login y /register
-  const hideMainLinks =
-    location.pathname === '/login' || location.pathname === '/register';
+  // ⚠️ IMPORTANTE: aquí NO usamos useAuth ni nada parecido.
+  // Sólo leemos del localStorage.
+  const rawEmail = localStorage.getItem('userEmail') || '';
+  const emailClean = rawEmail.trim().toLowerCase();
+
+  const isAuthenticated = !!rawEmail;
+  const isAdmin = emailClean === 'admin@gmail.com';
+
+  const isAuthRoute =
+    location.pathname.startsWith('/login') ||
+    location.pathname.startsWith('/register');
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('isAdmin');
     navigate('/login');
   };
 
   return (
-    <header className="navbar">
-      <div className="navbar-inner">
-        {/* Logo */}
-        <div
-          className="navbar-logo"
-          onClick={() => navigate('/catalogo')}
-          style={{ cursor: 'pointer' }}
-        >
-          <span>DulceMundo</span>
-          <span className="navbar-logo-icon" role="img" aria-label="dulces">
-            🍭
-          </span>
-        </div>
+    <nav className="navbar">
+      <div className="navbar-left">
+        <span className="navbar-logo">DulceMundo 🍭</span>
+      </div>
 
-        {/* Links principales (solo si está logueado y no estamos en login/register) */}
-        {!hideMainLinks && isAuthenticated && (
-          <nav className="navbar-links">
-            <Link to="/catalogo" className="nav-link">
+      <div className="navbar-right">
+        {/* Menú sólo si NO estamos en login/register y SÍ hay sesión */}
+        {!isAuthRoute && isAuthenticated && (
+          <>
+            <Link className="navbar-link" to="/catalogo">
               Catálogo
             </Link>
-            <Link to="/cart" className="nav-link">
+            <Link className="navbar-link" to="/cart">
               Mi bolsa
             </Link>
 
-            {/* Botón de panel admin sólo si es admin */}
             {isAdmin && (
-              <Link to="/admin" className="nav-link nav-link-admin">
+              <Link className="navbar-link" to="/admin">
                 Panel admin
               </Link>
             )}
-          </nav>
+          </>
         )}
 
-        {/* Acciones (login/registro o cerrar sesión) */}
-        <div className="navbar-actions">
-          {!isAuthenticated && (
-            <>
-              {location.pathname !== '/login' && (
-                <Link to="/login" className="nav-link">
-                  Iniciar sesión
-                </Link>
-              )}
-              {location.pathname !== '/register' && (
-                <Link to="/register" className="nav-link">
-                  Registrarse
-                </Link>
-              )}
-            </>
-          )}
-
-          {isAuthenticated && (
-            <button className="btn-logout" onClick={handleLogout}>
-              Cerrar sesión
-            </button>
-          )}
-        </div>
+        {/* Zona de autenticación */}
+        {!isAuthenticated ? (
+          <>
+            {location.pathname !== '/login' && (
+              <Link className="navbar-link" to="/login">
+                Iniciar sesión
+              </Link>
+            )}
+            {location.pathname !== '/register' && (
+              <Link className="navbar-link" to="/register">
+                Registrarse
+              </Link>
+            )}
+          </>
+        ) : (
+          <button className="navbar-logout-btn" onClick={handleLogout}>
+            Cerrar sesión
+          </button>
+        )}
       </div>
-    </header>
+    </nav>
   );
 };
 
