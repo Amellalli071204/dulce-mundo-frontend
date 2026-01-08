@@ -1,6 +1,6 @@
 // src/pages/CartPage.js
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -12,40 +12,33 @@ const API_BASE_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 const CartPage = () => {
   const navigate = useNavigate();
 
-  // ✅ Hooks SIEMPRE arriba
+  // Contexts (sin lógica rara)
   const cartContext = useCart();
   const authContext = useAuth();
 
-  // ✅ Valores crudos (pueden ser undefined)
-  const rawCartItems = cartContext ? cartContext.cartItems : undefined;
-  const updateQuantity = cartContext?.updateQuantity;
-  const removeFromCart = cartContext?.removeFromCart;
-  const user = authContext?.user || null;
+  if (!cartContext || !authContext) {
+    return <p>Cargando carrito...</p>;
+  }
 
-  // ✅ Array estable (NO crea [] nuevo cada render)
-  const cartItems = Array.isArray(rawCartItems) ? rawCartItems : [];
+  const { cartItems, updateQuantity, removeFromCart } = cartContext;
+  const { user } = authContext;
 
-  // ✅ useMemo SIN WARNING de ESLint
-  const subtotal = useMemo(() => {
-    if (cartItems.length === 0) return 0;
-
-    return cartItems.reduce(
-      (sum, item) => sum + Number(item.precio) * item.cantidad,
-      0
-    );
-  }, [cartItems]);
+  // ✅ TOTAL SIN useMemo (NO ESLINT, NO CI ERROR)
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + Number(item.precio) * item.cantidad,
+    0
+  );
 
   const handleChangeQuantity = (id, cantidad) => {
-    if (!updateQuantity || cantidad < 1) return;
+    if (cantidad < 1) return;
     updateQuantity(id, cantidad);
   };
 
   const handleRemove = (id) => {
-    if (!removeFromCart) return;
     removeFromCart(id);
   };
 
-  /* ================== PAGO DIGITAL ================== */
+  /* ================== MERCADO PAGO ================== */
   const handlePayWithMercadoPago = async () => {
     if (!user) {
       alert('Debes iniciar sesión para pagar.');
@@ -91,10 +84,10 @@ const CartPage = () => {
     }
   };
 
-  /* ================== PAGO EN EFECTIVO ================== */
+  /* ================== EFECTIVO ================== */
   const handlePayCash = async () => {
     if (!user) {
-      alert('Debes iniciar sesión para hacer tu pedido.');
+      alert('Debes iniciar sesión.');
       navigate('/login');
       return;
     }
@@ -126,49 +119,27 @@ const CartPage = () => {
     }
   };
 
-  /* ================== RENDER ================== */
-
-  if (!cartContext || !authContext) {
-    return <p>Cargando carrito...</p>;
-  }
-
   return (
     <div className="cart-page">
       <div className="cart-card">
-        <h1 className="cart-title">Resumen de la compra</h1>
+        <h1>Resumen de la compra</h1>
 
         {cartItems.length === 0 ? (
-          <p className="cart-empty">Tu bolsa está vacía.</p>
+          <p>Tu bolsa está vacía.</p>
         ) : (
           <>
-            <div className="cart-items">
-              {cartItems.map(item => (
-                <div className="cart-item" key={item.id}>
-                  <p>{item.nombre}</p>
-                  <p>${Number(item.precio).toFixed(2)}</p>
+            {cartItems.map(item => (
+              <div key={item.id}>
+                <p>{item.nombre}</p>
+                <p>${Number(item.precio).toFixed(2)}</p>
 
-                  <button
-                    onClick={() =>
-                      handleChangeQuantity(item.id, item.cantidad - 1)
-                    }
-                  >
-                    -
-                  </button>
+                <button onClick={() => handleChangeQuantity(item.id, item.cantidad - 1)}>-</button>
+                <span>{item.cantidad}</span>
+                <button onClick={() => handleChangeQuantity(item.id, item.cantidad + 1)}>+</button>
 
-                  <span>{item.cantidad}</span>
-
-                  <button
-                    onClick={() =>
-                      handleChangeQuantity(item.id, item.cantidad + 1)
-                    }
-                  >
-                    +
-                  </button>
-
-                  <button onClick={() => handleRemove(item.id)}>✕</button>
-                </div>
-              ))}
-            </div>
+                <button onClick={() => handleRemove(item.id)}>✕</button>
+              </div>
+            ))}
 
             <h3>Total: ${subtotal.toFixed(2)}</h3>
 
