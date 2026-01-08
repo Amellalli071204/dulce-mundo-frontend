@@ -1,210 +1,67 @@
-// src/pages/CartPage.js
-
-import React, { useState } from 'react';
-import { useCart } from '../context/CartContext';
+import React, { useMemo } from 'react';
 import axios from 'axios';
-import './CartPage.css';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import '../pages//CartPage.css';
 
-const API_URL = 'https://dulce-mundo-backend-production.up.railway.app';
+const API_BASE_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const CartPage = () => {
-  const {
-    cartItems,
-    removeProductFromCart,
-    addProductToCart,
-    decreaseProductQuantity,
-  } = useCart();
+  const navigate = useNavigate();
+  const { cartItems, clearCart } = useCart();
+  const { user } = useAuth();
 
-  // Leemos el correo guardado al iniciar sesión
-  const rawEmail = localStorage.getItem('userEmail');
-  const emailClean = (rawEmail || '').trim().toLowerCase();
-  const isAdmin = emailClean === 'admin@gmail.com';
-
-  console.log(
-    'CART - rawEmail:',
-    rawEmail,
-    'emailClean:',
-    emailClean,
-    'isAdmin:',
-    isAdmin
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) => sum + Number(item.precio) * item.cantidad,
+        0
+      ),
+    [cartItems]
   );
 
-  const [loading, setLoading] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-
-  const total = cartItems.reduce((acc, item) => {
-    const price = parseFloat(item.precio) || 0;
-    return acc + price * item.quantity;
-  }, 0);
-
-  // --- PAGO DIGITAL (Mercado Pago) ---
-  const handleDigitalCheckout = async () => {
-    if (cartItems.length === 0) {
-      alert('Tu carrito está vacío.');
+  const handlePayWithMercadoPago = async () => {
+    if (!user) {
+      alert('Debes iniciar sesión');
+      navigate('/login');
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await axios.post(
-        `${API_URL}/api/create-payment-preference`,
-        { cartItems }
+      const payload = {
+        items: cartItems.map(item => ({
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precio: item.precio,
+        })),
+        cliente: {
+          nombre: user.nombre,
+          email: user.email,
+        },
+      };
+
+      const res = await axios.post(
+        `${API_BASE_URL}/api/create_preference`,
+        payload
       );
-      const { init_point } = response.data;
-      window.location.href = init_point;
-    } catch (error) {
-      console.error('Error al procesar el pago digital:', error);
-      alert('Error al iniciar el proceso de pago digital. Intenta de nuevo.');
-      setLoading(false);
-    }
-  };
 
-  // --- PAGO EN EFECTIVO (Contra entrega) ---
-  const handleCashCheckout = async () => {
-    if (cartItems.length === 0) {
-      alert('Tu carrito está vacío.');
-      return;
-    }
+      const { id } = res.data;
 
-    setLoading(true);
-    try {
-      await axios.post(`${API_URL}/api/create-cash-order`, {
-        cartItems,
-        total,
-      });
-
-      alert(
-        '¡Orden creada! El repartidor llevará tu pedido y pagarás en efectivo.'
-      );
-    } catch (error) {
-      console.error('Error al crear la orden en efectivo:', error);
-      alert('Error al crear la orden en efectivo. Intenta de nuevo.');
-    } finally {
-      setLoading(false);
+      window.location.href =
+        `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${id}`;
+    } catch (err) {
+      console.error(err);
+      alert('Error al procesar el pago digital');
     }
-  };
-
-  const handleInitialCheckout = () => {
-    if (cartItems.length === 0) {
-      alert('Tu carrito está vacío.');
-      return;
-    }
-    setShowOptions(true);
   };
 
   return (
-    <div className="cart-container">
-      <h1>Mi Bolsa 🛍️</h1>
-
-      {cartItems.length === 0 ? (
-        <p>Tu bolsa está vacía. ¡Añade unos dulces!</p>
-      ) : (
-        <>
-          {/* LISTA DE PRODUCTOS */}
-          <div className="cart-items-list">
-            {cartItems.map((item) => (
-              <div key={item.id} className="cart-item">
-                <img
-                  src={item.imagen_url}
-                  alt={item.nombre}
-                  className="cart-item-image"
-                />
-
-                <div className="cart-item-details">
-                  <h3>{item.nombre}</h3>
-                  <p>Precio: ${(parseFloat(item.precio) || 0).toFixed(2)}</p>
-
-                  <div className="quantity-controls">
-                    <button
-                      className="btn-quantity"
-                      onClick={() => decreaseProductQuantity(item.id)}
-                    >
-                      -
-                    </button>
-                    <span className="quantity-display">{item.quantity}</span>
-                    <button
-                      className="btn-quantity"
-                      onClick={() => addProductToCart(item)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                <div className="cart-item-price">
-                  <p>
-                    Subtotal: $
-                    {(parseFloat(item.precio) * item.quantity).toFixed(2)}
-                  </p>
-                </div>
-
-                <div className="cart-item-actions">
-                  <button
-                    className="btn-remove-item"
-                    onClick={() => removeProductFromCart(item.id)}
-                  >
-                    X
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* RESUMEN Y MÉTODOS DE PAGO */}
-          <div className="cart-summary">
-            <h2>Resumen de la compra</h2>
-            <h3>Total: ${total.toFixed(2)}</h3>
-
-            {!showOptions ? (
-              <button
-                className="btn-checkout"
-                onClick={handleInitialCheckout}
-                disabled={loading}
-              >
-                Proceder al pago
-              </button>
-            ) : (
-              <div className="payment-options">
-                <p>¿Cómo deseas pagar?</p>
-
-                {/* TODOS ven el pago digital */}
-                <button
-                  className="btn-option digital-btn"
-                  onClick={handleDigitalCheckout}
-                  disabled={loading}
-                >
-                  Tarjeta, Transferencia, OXXO
-                </button>
-
-                {/* SOLO CLIENTES ven el pago en efectivo */}
-                { (
-                  <>
-                    <button
-                      className="btn-option cash-btn"
-                      onClick={handleCashCheckout}
-                      disabled={loading}
-                    >
-                      Efectivo (Contra entrega)
-                    </button>
-                    <p className="cash-info">
-                      También puedes pagar en efectivo al recibir tu pedido. 💵
-                    </p>
-                  </>
-                )}
-
-                {/* SOLO ADMIN ve este mensaje */}
-                {isAdmin && (
-                  <p className="cash-info">
-                    El pago en efectivo solo está disponible para los clientes.
-                    Desde esta cuenta de administrador solo puedes revisar y
-                    gestionar pedidos.
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        </>
-      )}
+    <div>
+      <h2>Total: ${subtotal.toFixed(2)}</h2>
+      <button onClick={handlePayWithMercadoPago}>
+        Tarjeta, Transferencia, OXXO
+      </button>
     </div>
   );
 };
