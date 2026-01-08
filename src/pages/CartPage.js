@@ -7,15 +7,22 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import './CartPage.css';
 
-// 🔗 URL del backend en Railway
+// Backend en Railway
 const API_BASE_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const CartPage = () => {
   const navigate = useNavigate();
 
-  // ❗ clearCart ELIMINADO porque no se usaba (evita error ESLint)
-  const { cartItems, updateQuantity, removeFromCart } = useCart();
-  const { user } = useAuth();
+  // 🔒 PROTECCIÓN: por si el contexto aún no existe
+  const cartContext = useCart();
+  const authContext = useAuth();
+
+  if (!cartContext || !authContext) {
+    return <p>Cargando carrito...</p>;
+  }
+
+  const { cartItems, updateQuantity, removeFromCart } = cartContext;
+  const { user } = authContext;
 
   const subtotal = useMemo(() => {
     return cartItems.reduce(
@@ -24,16 +31,16 @@ const CartPage = () => {
     );
   }, [cartItems]);
 
-  const handleRemove = (id) => {
-    removeFromCart(id);
-  };
-
   const handleChangeQuantity = (id, cantidad) => {
     if (cantidad < 1) return;
     updateQuantity(id, cantidad);
   };
 
-  /* ================== PAGO DIGITAL (MERCADO PAGO) ================== */
+  const handleRemove = (id) => {
+    removeFromCart(id);
+  };
+
+  /* ================== PAGO DIGITAL ================== */
 
   const handlePayWithMercadoPago = async () => {
     if (!user) {
@@ -72,7 +79,6 @@ const CartPage = () => {
         return;
       }
 
-      // 👉 Redirección al checkout de Mercado Pago
       window.location.href =
         `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${id}`;
     } catch (error) {
@@ -90,22 +96,12 @@ const CartPage = () => {
       return;
     }
 
-    if (cartItems.length === 0) {
-      alert('Tu bolsa está vacía.');
-      return;
-    }
-
     try {
       const payload = {
         clienteId: user.id,
         nombreCliente: user.nombre,
         telefono: user.telefono || '',
-        items: cartItems.map(item => ({
-          id: item.id,
-          nombre: item.nombre,
-          cantidad: item.cantidad,
-          precio: item.precio,
-        })),
+        items: cartItems,
         total: subtotal.toFixed(2),
       };
 
@@ -117,8 +113,8 @@ const CartPage = () => {
       alert('Pedido creado. Pagarás en efectivo al recibir tu pedido.');
       navigate('/catalogo');
     } catch (error) {
-      console.error('Error al crear pedido en efectivo:', error);
-      alert('Error al crear el pedido en efectivo.');
+      console.error(error);
+      alert('Error al crear pedido en efectivo.');
     }
   };
 
@@ -134,70 +130,27 @@ const CartPage = () => {
             <div className="cart-items">
               {cartItems.map(item => (
                 <div className="cart-item" key={item.id}>
-                  <div className="cart-item-info">
-                    <p className="cart-item-name">{item.nombre}</p>
-                    <p className="cart-item-price">
-                      ${Number(item.precio).toFixed(2)}
-                    </p>
-                  </div>
+                  <p>{item.nombre}</p>
+                  <p>${Number(item.precio).toFixed(2)}</p>
 
-                  <div className="cart-item-actions">
-                    <button
-                      className="qty-btn"
-                      onClick={() =>
-                        handleChangeQuantity(item.id, item.cantidad - 1)
-                      }
-                    >
-                      -
-                    </button>
+                  <button onClick={() => handleChangeQuantity(item.id, item.cantidad - 1)}>-</button>
+                  <span>{item.cantidad}</span>
+                  <button onClick={() => handleChangeQuantity(item.id, item.cantidad + 1)}>+</button>
 
-                    <span className="qty-value">{item.cantidad}</span>
-
-                    <button
-                      className="qty-btn"
-                      onClick={() =>
-                        handleChangeQuantity(item.id, item.cantidad + 1)
-                      }
-                    >
-                      +
-                    </button>
-
-                    <button
-                      className="remove-btn"
-                      onClick={() => handleRemove(item.id)}
-                    >
-                      ✕
-                    </button>
-                  </div>
+                  <button onClick={() => handleRemove(item.id)}>✕</button>
                 </div>
               ))}
             </div>
 
-            <div className="cart-summary">
-              <p className="cart-total">
-                Total: <span>${subtotal.toFixed(2)}</span>
-              </p>
+            <h3>Total: ${subtotal.toFixed(2)}</h3>
 
-              <h2 className="cart-subtitle">¿Cómo deseas pagar?</h2>
+            <button onClick={handlePayWithMercadoPago}>
+              Tarjeta, Transferencia, OXXO
+            </button>
 
-              <button
-                className="cart-pay-btn card"
-                onClick={handlePayWithMercadoPago}
-              >
-                Tarjeta, Transferencia, OXXO
-              </button>
-
-              <button
-                className="cart-pay-btn cash"
-                onClick={handlePayCash}
-              >
-                Efectivo (Contra entrega)
-              </button>
-
-              <p className="cart-note">
-                También puedes pagar en efectivo al recibir tu pedido. 🪙
-              </p>
-            </div>
+            <button onClick={handlePayCash}>
+              Efectivo (Contra entrega)
+            </button>
           </>
         )}
       </div>
