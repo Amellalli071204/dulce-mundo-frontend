@@ -7,25 +7,27 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import './CartPage.css';
 
-// URL del backend en Railway
 const API_BASE_URL = 'https://dulce-mundo-backend-production.up.railway.app';
 
 const CartPage = () => {
   const navigate = useNavigate();
 
-  // ✅ Hooks SIEMPRE se llaman (nunca condicionales)
+  // ✅ Hooks SIEMPRE arriba
   const cartContext = useCart();
   const authContext = useAuth();
 
-  // Valores seguros (NO hooks)
-  const cartItems = cartContext?.cartItems ?? [];
+  // ✅ Valores crudos (pueden ser undefined)
+  const rawCartItems = cartContext ? cartContext.cartItems : undefined;
   const updateQuantity = cartContext?.updateQuantity;
   const removeFromCart = cartContext?.removeFromCart;
-  const user = authContext?.user ?? null;
+  const user = authContext?.user || null;
 
-  // ✅ useMemo SIEMPRE se ejecuta
+  // ✅ Array estable (NO crea [] nuevo cada render)
+  const cartItems = Array.isArray(rawCartItems) ? rawCartItems : [];
+
+  // ✅ useMemo SIN WARNING de ESLint
   const subtotal = useMemo(() => {
-    if (!Array.isArray(cartItems) || cartItems.length === 0) return 0;
+    if (cartItems.length === 0) return 0;
 
     return cartItems.reduce(
       (sum, item) => sum + Number(item.precio) * item.cantidad,
@@ -126,7 +128,6 @@ const CartPage = () => {
 
   /* ================== RENDER ================== */
 
-  // 👉 El render puede ser condicional (esto NO rompe hooks)
   if (!cartContext || !authContext) {
     return <p>Cargando carrito...</p>;
   }
