@@ -1,20 +1,19 @@
 // src/index.js
 
-reportWebVitals();
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 import App from './App';
-import { CartProvider } from './context/CartContext';
-import { AuthProvider } from './context/AuthContext';
+import reportWebVitals from './reportWebVitals';
+import { CartProvider } from './context/CartContext'; // <-- 1. IMPORTAMOS
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <CartProvider>
-        <App />
-      </CartProvider>
-    </AuthProvider>
+    <CartProvider> {/* <-- 2. ENVOLVEMOS LA APP */}
+      <App />
+    </CartProvider>
   </React.StrictMode>
 );
+
+reportWebVitals();
