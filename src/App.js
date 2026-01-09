@@ -31,6 +31,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="/product/:id"
               element={
@@ -39,14 +40,13 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* ✅ CART SIN ProtectedRoute */}
             <Route
               path="/cart"
-              element={
-                <ProtectedRoute>
-                  <CartPage />
-                </ProtectedRoute>
-              }
+              element={<CartPage />}
             />
+
             <Route
               path="/admin"
               element={
